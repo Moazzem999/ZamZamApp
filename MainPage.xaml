@@ -131,6 +131,20 @@
                         Clicked="OnSaveClicked"
                         Margin="0,8,0,0" />
 
+                    <!-- Debug Reset Button (Visible only in DEBUG mode for development/testing) -->
+                    <Button
+                        x:Name="DebugResetButton"
+                        Text="Reset Settings (Debug Only)"
+                        FontSize="12"
+                        TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray400}}"
+                        BackgroundColor="Transparent"
+                        BorderColor="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray600}}"
+                        BorderWidth="1"
+                        HeightRequest="36"
+                        CornerRadius="6"
+                        Clicked="OnDebugResetClicked"
+                        IsVisible="False"
+                        Margin="0,4,0,0" />
                 </VerticalStackLayout>
             </Border>
 

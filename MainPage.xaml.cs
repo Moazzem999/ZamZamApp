@@ -10,6 +10,9 @@ namespace ZamZamApp
         public MainPage()
         {
             InitializeComponent();
+#if DEBUG
+            DebugResetButton.IsVisible = true;
+#endif
             LoadSavedSettings();
         }
 
@@ -120,6 +123,40 @@ namespace ZamZamApp
 
             await DisplayAlertAsync("Saved & Locked", "Settings have been permanently saved and locked. To reconfigure, you must uninstall and reinstall the app.", "OK");
         }
+
+#if DEBUG
+        private async void OnDebugResetClicked(object? sender, EventArgs e)
+        {
+            bool confirm = await DisplayAlertAsync("Reset Form (Debug)", "Clear all saved settings and unlock the form for testing?", "Yes, Reset", "Cancel");
+            if (!confirm)
+                return;
+
+            Preferences.Default.Remove(PrefEmployeeId);
+            Preferences.Default.Remove(PrefApiTriggerInterval);
+            Preferences.Default.Remove(PrefApiUrl);
+            Preferences.Default.Remove(PrefIsSaved);
+
+            EmployeeIdEntry.Text = string.Empty;
+            ApiIntervalEntry.Text = string.Empty;
+            ApiUrlEntry.Text = string.Empty;
+
+            EmployeeIdEntry.IsReadOnly = false;
+            ApiIntervalEntry.IsReadOnly = false;
+            ApiUrlEntry.IsReadOnly = false;
+
+            SaveSettingsButton.IsEnabled = true;
+            SaveSettingsButton.Text = "Save Settings";
+
+            StatusMessageLabel.Text = string.Empty;
+            StatusMessageLabel.IsVisible = false;
+
+            await DisplayAlertAsync("Reset", "Settings have been reset. You can now enter and test credentials for another user.", "OK");
+        }
+#else
+        private void OnDebugResetClicked(object? sender, EventArgs e)
+        {
+        }
+#endif
 
         private void ShowStatus(string message, bool isError)
         {
