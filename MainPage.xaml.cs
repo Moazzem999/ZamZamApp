@@ -5,6 +5,7 @@ namespace ZamZamApp
         private const string PrefEmployeeId = "ZamZam_EmployeeId";
         private const string PrefApiTriggerInterval = "ZamZam_ApiTriggerInterval";
         private const string PrefApiUrl = "ZamZam_ApiUrl";
+        private const string PrefIsSaved = "ZamZam_IsSettingsSaved";
 
         public MainPage()
         {
@@ -17,6 +18,23 @@ namespace ZamZamApp
             EmployeeIdEntry.Text = Preferences.Default.Get(PrefEmployeeId, string.Empty);
             ApiIntervalEntry.Text = Preferences.Default.Get(PrefApiTriggerInterval, string.Empty);
             ApiUrlEntry.Text = Preferences.Default.Get(PrefApiUrl, string.Empty);
+
+            if (Preferences.Default.Get(PrefIsSaved, false))
+            {
+                DisableFormForLifetime();
+            }
+        }
+
+        private void DisableFormForLifetime()
+        {
+            SaveSettingsButton.IsEnabled = false;
+            SaveSettingsButton.Text = "Settings Saved & Locked";
+
+            EmployeeIdEntry.IsReadOnly = true;
+            ApiIntervalEntry.IsReadOnly = true;
+            ApiUrlEntry.IsReadOnly = true;
+
+            ShowStatus("Settings are locked. To modify them, uninstall and reinstall the app.", isError: false);
         }
 
         private void OnNumericEntryTextChanged(object? sender, TextChangedEventArgs e)
@@ -34,6 +52,13 @@ namespace ZamZamApp
 
         private async void OnSaveClicked(object? sender, EventArgs e)
         {
+            // Safeguard if already saved
+            if (Preferences.Default.Get(PrefIsSaved, false))
+            {
+                DisableFormForLifetime();
+                return;
+            }
+
             string employeeIdText = EmployeeIdEntry.Text?.Trim() ?? string.Empty;
             string intervalText = ApiIntervalEntry.Text?.Trim() ?? string.Empty;
             string apiUrlText = ApiUrlEntry.Text?.Trim() ?? string.Empty;
@@ -53,17 +78,17 @@ namespace ZamZamApp
                 return;
             }
 
-            // Validate API Trigger Interval
+            // Validate API Trigger Interval (minutes)
             if (string.IsNullOrWhiteSpace(intervalText))
             {
-                ShowStatus("Please enter an API trigger interval.", isError: true);
+                ShowStatus("Please enter an API trigger interval (in minutes).", isError: true);
                 ApiIntervalEntry.Focus();
                 return;
             }
 
             if (!int.TryParse(intervalText, out int interval) || interval <= 0)
             {
-                ShowStatus("Trigger interval must be a valid number greater than 0.", isError: true);
+                ShowStatus("Trigger interval must be a valid number of minutes greater than 0.", isError: true);
                 ApiIntervalEntry.Focus();
                 return;
             }
@@ -88,10 +113,12 @@ namespace ZamZamApp
             Preferences.Default.Set(PrefEmployeeId, employeeIdText);
             Preferences.Default.Set(PrefApiTriggerInterval, intervalText);
             Preferences.Default.Set(PrefApiUrl, apiUrlText);
+            Preferences.Default.Set(PrefIsSaved, true);
 
-            ShowStatus("Settings saved successfully!", isError: false);
+            // Permanently lock the form and button
+            DisableFormForLifetime();
 
-            await DisplayAlertAsync("Saved", "Configuration has been saved successfully.", "OK");
+            await DisplayAlertAsync("Saved & Locked", "Settings have been permanently saved and locked. To reconfigure, you must uninstall and reinstall the app.", "OK");
         }
 
         private void ShowStatus(string message, bool isError)

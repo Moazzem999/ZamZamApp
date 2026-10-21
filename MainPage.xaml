@@ -85,7 +85,7 @@
                             Padding="12,4">
                             <Entry
                                 x:Name="ApiIntervalEntry"
-                                Placeholder="Enter interval in seconds (e.g. 60)"
+                                Placeholder="Enter interval in minutes (e.g. 15)"
                                 Keyboard="Numeric"
                                 TextChanged="OnNumericEntryTextChanged"
                                 ClearButtonVisibility="WhileEditing" />
@@ -122,7 +122,7 @@
 
                     <!-- Save Button -->
                     <Button
-                        x:Name="SaveButton"
+                        x:Name="SaveSettingsButton"
                         Text="Save Settings"
                         FontSize="15"
                         FontAttributes="Bold"
