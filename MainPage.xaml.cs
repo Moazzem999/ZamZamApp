@@ -1,11 +1,13 @@
+using ZamZamApp.Services;
+
 namespace ZamZamApp
 {
     public partial class MainPage : ContentPage
     {
-        private const string PrefEmployeeId = "ZamZam_EmployeeId";
-        private const string PrefApiTriggerInterval = "ZamZam_ApiTriggerInterval";
-        private const string PrefApiUrl = "ZamZam_ApiUrl";
-        private const string PrefIsSaved = "ZamZam_IsSettingsSaved";
+        private const string PrefEmployeeId = TrackingManager.PrefEmployeeId;
+        private const string PrefApiTriggerInterval = TrackingManager.PrefApiTriggerInterval;
+        private const string PrefApiUrl = TrackingManager.PrefApiUrl;
+        private const string PrefIsSaved = TrackingManager.PrefIsSaved;
 
         public MainPage()
         {
@@ -14,6 +16,30 @@ namespace ZamZamApp
             DebugResetButton.IsVisible = true;
 #endif
             LoadSavedSettings();
+
+            TrackingManager.Instance.TrackingLogEvent += OnTrackingLogReceived;
+        }
+
+        protected override async void OnAppearing()
+        {
+            base.OnAppearing();
+
+            // Request location and battery permissions on launch
+            await TrackingManager.Instance.RequestPermissionsAndBatteryOptimizationAsync();
+
+            // If already configured and saved, ensure background tracking is actively running
+            if (Preferences.Default.Get(PrefIsSaved, false))
+            {
+                TrackingManager.Instance.StartTracking();
+            }
+        }
+
+        private void OnTrackingLogReceived(string message, bool isSuccess)
+        {
+            if (Preferences.Default.Get(PrefIsSaved, false))
+            {
+                ShowStatus(message, isError: !isSuccess);
+            }
         }
 
         private void LoadSavedSettings()
@@ -37,7 +63,7 @@ namespace ZamZamApp
             ApiIntervalEntry.IsReadOnly = true;
             ApiUrlEntry.IsReadOnly = true;
 
-            ShowStatus("Settings are locked. To modify them, uninstall and reinstall the app.", isError: false);
+            ShowStatus("Tracking active in background. Reinstall app to change settings.", isError: false);
         }
 
         private void OnNumericEntryTextChanged(object? sender, TextChangedEventArgs e)
@@ -112,6 +138,9 @@ namespace ZamZamApp
                 return;
             }
 
+            // Ensure permissions and battery optimization exemption are requested
+            await TrackingManager.Instance.RequestPermissionsAndBatteryOptimizationAsync();
+
             // Save settings to persistent storage
             Preferences.Default.Set(PrefEmployeeId, employeeIdText);
             Preferences.Default.Set(PrefApiTriggerInterval, intervalText);
@@ -121,15 +150,21 @@ namespace ZamZamApp
             // Permanently lock the form and button
             DisableFormForLifetime();
 
-            await DisplayAlertAsync("Saved & Locked", "Settings have been permanently saved and locked. To reconfigure, you must uninstall and reinstall the app.", "OK");
+            // Start the background tracking service immediately
+            TrackingManager.Instance.StartTracking();
+
+            await DisplayAlertAsync("Saved & Tracking Started", "Settings are locked. Background tracking has started and will continue running even if the app is closed.", "OK");
         }
 
 #if DEBUG
         private async void OnDebugResetClicked(object? sender, EventArgs e)
         {
-            bool confirm = await DisplayAlertAsync("Reset Form (Debug)", "Clear all saved settings and unlock the form for testing?", "Yes, Reset", "Cancel");
+            bool confirm = await DisplayAlertAsync("Reset Form (Debug)", "Stop tracking, clear all saved settings, and unlock the form for testing?", "Yes, Reset", "Cancel");
             if (!confirm)
                 return;
+
+            // Stop background tracking
+            TrackingManager.Instance.StopTracking();
 
             Preferences.Default.Remove(PrefEmployeeId);
             Preferences.Default.Remove(PrefApiTriggerInterval);
@@ -150,7 +185,7 @@ namespace ZamZamApp
             StatusMessageLabel.Text = string.Empty;
             StatusMessageLabel.IsVisible = false;
 
-            await DisplayAlertAsync("Reset", "Settings have been reset. You can now enter and test credentials for another user.", "OK");
+            await DisplayAlertAsync("Reset Complete", "Tracking stopped and settings reset. You can now enter and test new credentials.", "OK");
         }
 #else
         private void OnDebugResetClicked(object? sender, EventArgs e)
