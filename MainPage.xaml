@@ -1,40 +1,138 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     x:Class="ZamZamApp.MainPage"
-    Title="My First App">
+    Title="">
 
     <ScrollView>
         <VerticalStackLayout
-            Padding="30"
-            Spacing="20"
+            Padding="24"
+            Spacing="24"
+            MaximumWidthRequest="500"
+            HorizontalOptions="Center"
             VerticalOptions="Center">
 
-            <Label
-                Text="Welcome to My App!"
-                FontSize="28"
-                FontAttributes="Bold"
-                HorizontalOptions="Center" />
+            <!-- Header Section -->
+            <VerticalStackLayout Spacing="6" HorizontalOptions="Center" Margin="0,10,0,10">
+                <Label
+                    Text="ZamZam Tracker"
+                    FontSize="28"
+                    FontAttributes="Bold"
+                    TextColor="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}"
+                    HorizontalOptions="Center" />
+                <Label
+                    Text="Configure employee ID and API synchronization settings"
+                    FontSize="14"
+                    TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray400}}"
+                    HorizontalOptions="Center"
+                    HorizontalTextAlignment="Center" />
+            </VerticalStackLayout>
 
-            <Label
-                Text="Built with C# and .NET MAUI"
-                FontSize="16"
-                HorizontalOptions="Center" />
+            <!-- Form Card -->
+            <Border
+                Stroke="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}"
+                StrokeShape="RoundRectangle 16"
+                StrokeThickness="1"
+                Padding="24"
+                BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray900}}">
 
-            <Entry
-                x:Name="NameEntry"
-                Placeholder="Enter your name" />
+                <Border.Shadow>
+                    <Shadow Brush="#20000000" Offset="0,4" Radius="12" Opacity="0.5" />
+                </Border.Shadow>
 
-            <Button
-                Text="Say Hello"
-                Clicked="OnSayHelloClicked" />
+                <VerticalStackLayout Spacing="18">
 
-            <Label
-                x:Name="MessageLabel"
-                FontSize="18"
-                HorizontalOptions="Center"
-                HorizontalTextAlignment="Center" />
+                    <!-- Form Title -->
+                    <Label
+                        Text="Connection Settings"
+                        FontSize="18"
+                        FontAttributes="Bold"
+                        TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}" />
+
+                    <!-- Employee ID Field -->
+                    <VerticalStackLayout Spacing="6">
+                        <Label
+                            Text="Employee ID"
+                            FontSize="13"
+                            FontAttributes="Bold"
+                            TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}" />
+                        <Border
+                            Stroke="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}"
+                            StrokeShape="RoundRectangle 8"
+                            StrokeThickness="1"
+                            Padding="12,4">
+                            <Entry
+                                x:Name="EmployeeIdEntry"
+                                Placeholder="Enter employee ID (e.g. 1001)"
+                                Keyboard="Numeric"
+                                TextChanged="OnNumericEntryTextChanged"
+                                ClearButtonVisibility="WhileEditing" />
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <!-- API Trigger Interval Field -->
+                    <VerticalStackLayout Spacing="6">
+                        <Label
+                            Text="API Trigger Interval (minutes)"
+                            FontSize="13"
+                            FontAttributes="Bold"
+                            TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}" />
+                        <Border
+                            Stroke="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}"
+                            StrokeShape="RoundRectangle 8"
+                            StrokeThickness="1"
+                            Padding="12,4">
+                            <Entry
+                                x:Name="ApiIntervalEntry"
+                                Placeholder="Enter interval in seconds (e.g. 60)"
+                                Keyboard="Numeric"
+                                TextChanged="OnNumericEntryTextChanged"
+                                ClearButtonVisibility="WhileEditing" />
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <!-- API URL Field -->
+                    <VerticalStackLayout Spacing="6">
+                        <Label
+                            Text="API URL"
+                            FontSize="13"
+                            FontAttributes="Bold"
+                            TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}" />
+                        <Border
+                            Stroke="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}"
+                            StrokeShape="RoundRectangle 8"
+                            StrokeThickness="1"
+                            Padding="12,4">
+                            <Entry
+                                x:Name="ApiUrlEntry"
+                                Placeholder="https://api.example.com/v1/sync"
+                                Keyboard="Url"
+                                ClearButtonVisibility="WhileEditing" />
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <!-- Status Message Label -->
+                    <Label
+                        x:Name="StatusMessageLabel"
+                        FontSize="13"
+                        HorizontalOptions="Center"
+                        HorizontalTextAlignment="Center"
+                        IsVisible="False" />
+
+                    <!-- Save Button -->
+                    <Button
+                        x:Name="SaveButton"
+                        Text="Save Settings"
+                        FontSize="15"
+                        FontAttributes="Bold"
+                        HeightRequest="48"
+                        CornerRadius="8"
+                        Clicked="OnSaveClicked"
+                        Margin="0,8,0,0" />
+
+                </VerticalStackLayout>
+            </Border>
 
         </VerticalStackLayout>
     </ScrollView>
