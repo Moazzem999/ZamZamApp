@@ -24,17 +24,21 @@
                 </Border.Shadow>
 
                 <Grid ColumnDefinitions="Auto,*" ColumnSpacing="16" VerticalOptions="Center">
-                    <!-- Brand Icon Badge -->
+                    <!-- Brand Icon Badge with Official Logo -->
                     <Border
                         Grid.Column="0"
-                        WidthRequest="52"
-                        HeightRequest="52"
+                        WidthRequest="54"
+                        HeightRequest="54"
                         StrokeShape="RoundRectangle 14"
-                        StrokeThickness="0"
-                        BackgroundColor="{StaticResource BrandPrimary}">
-                        <Label
-                            Text="📍"
-                            FontSize="24"
+                        StrokeThickness="1"
+                        Stroke="{AppThemeBinding Light={StaticResource BorderSubtleLight}, Dark={StaticResource BorderSubtleDark}}"
+                        BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource CardBgDark}}"
+                        Padding="3">
+                        <Image
+                            Source="zamzam_logo.png"
+                            Aspect="AspectFit"
+                            WidthRequest="48"
+                            HeightRequest="48"
                             HorizontalOptions="Center"
                             VerticalOptions="Center" />
                     </Border>
