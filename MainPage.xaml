@@ -102,33 +102,15 @@
 
                 <VerticalStackLayout Spacing="16">
                     <!-- Metrics Header -->
-                    <Grid ColumnDefinitions="*,Auto" VerticalOptions="Center">
-                        <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
-                            <Label Text="📊" FontSize="16" VerticalOptions="Center" />
-                            <Label
-                                Text="Live System Telemetry"
-                                FontSize="15"
-                                FontAttributes="Bold"
-                                TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"
-                                VerticalOptions="Center" />
-                        </HorizontalStackLayout>
-
-                        <!-- Manual Ping Button -->
-                        <Button
-                            Grid.Column="1"
-                            x:Name="ManualPingButton"
-                            Text="⚡ Send Ping"
-                            FontSize="11"
+                    <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
+                        <Label Text="📊" FontSize="16" VerticalOptions="Center" />
+                        <Label
+                            Text="Live System Telemetry"
+                            FontSize="15"
                             FontAttributes="Bold"
-                            TextColor="{StaticResource BrandPrimary}"
-                            BackgroundColor="{AppThemeBinding Light={StaticResource BrandPrimaryLight}, Dark={StaticResource Gray900}}"
-                            BorderColor="{StaticResource BrandPrimary}"
-                            BorderWidth="1"
-                            HeightRequest="32"
-                            Padding="12,0"
-                            CornerRadius="8"
-                            Clicked="OnManualPingClicked" />
-                    </Grid>
+                            TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"
+                            VerticalOptions="Center" />
+                    </HorizontalStackLayout>
 
                     <!-- Stat Metric Tiles -->
                     <Grid ColumnDefinitions="*,*,*" ColumnSpacing="10">

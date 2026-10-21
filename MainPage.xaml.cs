@@ -121,28 +121,6 @@ namespace ZamZamApp
             UpdateLocationPreview();
         }
 
-        private async void OnManualPingClicked(object? sender, EventArgs e)
-        {
-            string employeeIdText = EmployeeIdEntry.Text?.Trim() ?? Preferences.Default.Get(PrefEmployeeId, string.Empty);
-            string apiUrlText = ApiUrlEntry.Text?.Trim() ?? Preferences.Default.Get(PrefApiUrl, string.Empty);
-
-            if (string.IsNullOrWhiteSpace(employeeIdText) || string.IsNullOrWhiteSpace(apiUrlText))
-            {
-                ShowStatus("Please fill in Employee ID and API URL before pinging.", isError: true);
-                return;
-            }
-
-            ManualPingButton.IsEnabled = false;
-            ManualPingButton.Text = "Sending...";
-
-            bool success = await TrackingManager.Instance.SendTrackingUpdateAsync();
-
-            ManualPingButton.Text = success ? "Sent ✓" : "Failed ✕";
-            await Task.Delay(1800);
-            ManualPingButton.Text = "⚡ Send Ping";
-            ManualPingButton.IsEnabled = true;
-        }
-
         private void LoadSavedSettings()
         {
             EmployeeIdEntry.Text = Preferences.Default.Get(PrefEmployeeId, string.Empty);
