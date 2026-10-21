@@ -16,6 +16,7 @@ namespace ZamZamApp
             DebugResetButton.IsVisible = true;
 #endif
             LoadSavedSettings();
+            UpdateDashboardUI();
 
             TrackingManager.Instance.TrackingLogEvent += OnTrackingLogReceived;
         }
@@ -23,6 +24,8 @@ namespace ZamZamApp
         protected override async void OnAppearing()
         {
             base.OnAppearing();
+
+            UpdateDashboardUI();
 
             // Request location and battery permissions on launch
             await TrackingManager.Instance.RequestPermissionsAndBatteryOptimizationAsync();
@@ -32,14 +35,119 @@ namespace ZamZamApp
             {
                 TrackingManager.Instance.StartTracking();
             }
+
+            UpdateLocationPreview();
+        }
+
+        private void UpdateDashboardUI()
+        {
+            bool isSaved = Preferences.Default.Get(PrefIsSaved, false);
+
+            // Update Battery
+            try
+            {
+                double charge = Battery.Default.ChargeLevel;
+                BatteryValueLabel.Text = charge >= 0 ? $"{(int)Math.Round(charge * 100)}%" : "100%";
+            }
+            catch
+            {
+                BatteryValueLabel.Text = "N/A";
+            }
+
+            // Update Interval
+            string interval = Preferences.Default.Get(PrefApiTriggerInterval, string.Empty);
+            IntervalValueLabel.Text = !string.IsNullOrEmpty(interval) ? $"{interval}m" : "--";
+
+            // Update Employee ID
+            string empId = Preferences.Default.Get(PrefEmployeeId, string.Empty);
+            EmployeeIdValueLabel.Text = !string.IsNullOrEmpty(empId) ? $"#{empId}" : "None";
+
+            // Update Status Badge
+            if (Application.Current != null)
+            {
+                if (isSaved)
+                {
+                    var green = Color.FromArgb("#10B981");
+                    var greenBg = Color.FromArgb("#ECFDF5");
+
+                    StatusBadgeBorder.Stroke = green;
+                    StatusBadgeDot.Fill = green;
+                    StatusBadgeText.Text = "Active • Tracking";
+                    StatusBadgeText.TextColor = green;
+                    StatusBadgeBorder.BackgroundColor = Application.Current.RequestedTheme == AppTheme.Dark
+                        ? Color.FromArgb("#064E3B")
+                        : greenBg;
+                }
+                else
+                {
+                    var amber = Color.FromArgb("#F59E0B");
+                    var amberBg = Color.FromArgb("#FFFBEB");
+
+                    StatusBadgeBorder.Stroke = amber;
+                    StatusBadgeDot.Fill = amber;
+                    StatusBadgeText.Text = "Setup Required";
+                    StatusBadgeText.TextColor = amber;
+                    StatusBadgeBorder.BackgroundColor = Application.Current.RequestedTheme == AppTheme.Dark
+                        ? Color.FromArgb("#78350F")
+                        : amberBg;
+                }
+            }
+        }
+
+        private void UpdateLocationPreview()
+        {
+            Task.Run(async () =>
+            {
+                try
+                {
+                    var loc = await Geolocation.Default.GetLastKnownLocationAsync();
+                    if (loc != null)
+                    {
+                        MainThread.BeginInvokeOnMainThread(() =>
+                        {
+                            CoordinatesLabel.Text = $"🌐 Lat: {loc.Latitude:F4}, Lon: {loc.Longitude:F4} (±{loc.Accuracy:F0}m)";
+                        });
+                    }
+                }
+                catch
+                {
+                }
+            });
         }
 
         private void OnTrackingLogReceived(string message, bool isSuccess)
         {
+            ConsoleLogLabel.Text = $"[{DateTime.Now:HH:mm:ss}] {message}";
+            LastSyncLabel.Text = $"🕒 Last Trigger: {DateTime.Now:hh:mm:ss tt}";
+
             if (Preferences.Default.Get(PrefIsSaved, false))
             {
                 ShowStatus(message, isError: !isSuccess);
             }
+
+            UpdateLocationPreview();
+        }
+
+        private async void OnManualPingClicked(object? sender, EventArgs e)
+        {
+            string employeeIdText = EmployeeIdEntry.Text?.Trim() ?? Preferences.Default.Get(PrefEmployeeId, string.Empty);
+            string apiUrlText = ApiUrlEntry.Text?.Trim() ?? Preferences.Default.Get(PrefApiUrl, string.Empty);
+
+            if (string.IsNullOrWhiteSpace(employeeIdText) || string.IsNullOrWhiteSpace(apiUrlText))
+            {
+                ShowStatus("Please fill in Employee ID and API URL before pinging.", isError: true);
+                return;
+            }
+
+            ManualPingButton.IsEnabled = false;
+            ManualPingButton.Text = "Sending...";
+
+            bool success = await TrackingManager.Instance.SendTrackingUpdateAsync();
+
+            ManualPingButton.Text = success ? "Sent ✓" : "Failed ✕";
+            await Task.Delay(1800);
+            ManualPingButton.Text = "⚡ Send Ping";
+            ManualPingButton.IsEnabled = true;
         }
 
         private void LoadSavedSettings()
@@ -57,12 +165,14 @@ namespace ZamZamApp
         private void DisableFormForLifetime()
         {
             SaveSettingsButton.IsEnabled = false;
-            SaveSettingsButton.Text = "Settings Saved & Locked";
+            SaveSettingsButton.Text = "🔒 Settings Locked & Active";
+            SaveSettingsButton.Opacity = 0.7;
 
             EmployeeIdEntry.IsReadOnly = true;
             ApiIntervalEntry.IsReadOnly = true;
             ApiUrlEntry.IsReadOnly = true;
 
+            UpdateDashboardUI();
             ShowStatus("Tracking active in background. Reinstall app to change settings.", isError: false);
         }
 
@@ -180,10 +290,14 @@ namespace ZamZamApp
             ApiUrlEntry.IsReadOnly = false;
 
             SaveSettingsButton.IsEnabled = true;
-            SaveSettingsButton.Text = "Save Settings";
+            SaveSettingsButton.Text = "🔒 Save & Activate Tracker";
+            SaveSettingsButton.Opacity = 1.0;
 
             StatusMessageLabel.Text = string.Empty;
             StatusMessageLabel.IsVisible = false;
+
+            ConsoleLogLabel.Text = "Settings reset. Ready for configuration.";
+            UpdateDashboardUI();
 
             await DisplayAlertAsync("Reset Complete", "Tracking stopped and settings reset. You can now enter and test new credentials.", "OK");
         }

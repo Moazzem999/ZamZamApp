@@ -3,148 +3,385 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     x:Class="ZamZamApp.MainPage"
-    Title="">
+    Shell.NavBarIsVisible="False"
+    BackgroundColor="{AppThemeBinding Light={StaticResource InputBgLight}, Dark={StaticResource InputBgDark}}">
 
     <ScrollView>
         <VerticalStackLayout
-            Padding="24"
-            Spacing="24"
-            MaximumWidthRequest="500"
-            HorizontalOptions="Center"
-            VerticalOptions="Center">
+            Padding="20,24,20,36"
+            Spacing="20"
+            MaximumWidthRequest="540"
+            HorizontalOptions="Center">
 
-            <!-- Header Section -->
-            <VerticalStackLayout Spacing="6" HorizontalOptions="Center" Margin="0,10,0,10">
-                <Label
-                    Text="ZamZam Tracker"
-                    FontSize="28"
-                    FontAttributes="Bold"
-                    TextColor="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}"
-                    HorizontalOptions="Center" />
-                <Label
-                    Text="Configure employee ID and API synchronization settings"
-                    FontSize="14"
-                    TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray400}}"
-                    HorizontalOptions="Center"
-                    HorizontalTextAlignment="Center" />
-            </VerticalStackLayout>
-
-            <!-- Form Card -->
+            <!-- 1. Header Section -->
             <Border
-                Stroke="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}"
-                StrokeShape="RoundRectangle 16"
-                StrokeThickness="1"
-                Padding="24"
-                BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray900}}">
-
+                StrokeThickness="0"
+                BackgroundColor="{AppThemeBinding Light={StaticResource CardBgLight}, Dark={StaticResource CardBgDark}}"
+                StrokeShape="RoundRectangle 20"
+                Padding="20,18">
                 <Border.Shadow>
-                    <Shadow Brush="#20000000" Offset="0,4" Radius="12" Opacity="0.5" />
+                    <Shadow Brush="#15000000" Offset="0,4" Radius="12" Opacity="0.8" />
+                </Border.Shadow>
+
+                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="16" VerticalOptions="Center">
+                    <!-- Brand Icon Badge -->
+                    <Border
+                        Grid.Column="0"
+                        WidthRequest="52"
+                        HeightRequest="52"
+                        StrokeShape="RoundRectangle 14"
+                        StrokeThickness="0"
+                        BackgroundColor="{StaticResource BrandPrimary}">
+                        <Label
+                            Text="📍"
+                            FontSize="24"
+                            HorizontalOptions="Center"
+                            VerticalOptions="Center" />
+                    </Border>
+
+                    <!-- Title & Subtitle -->
+                    <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
+                        <Grid ColumnDefinitions="*,Auto" VerticalOptions="Center">
+                            <Label
+                                Grid.Column="0"
+                                Text="ZamZam Tracker"
+                                FontSize="20"
+                                FontAttributes="Bold"
+                                TextColor="{AppThemeBinding Light={StaticResource Gray950}, Dark={StaticResource White}}" />
+
+                            <!-- Status Pill Badge -->
+                            <Border
+                                Grid.Column="1"
+                                x:Name="StatusBadgeBorder"
+                                StrokeThickness="1"
+                                Stroke="{StaticResource WarningAmber}"
+                                BackgroundColor="{AppThemeBinding Light={StaticResource WarningAmberBg}, Dark={StaticResource Gray900}}"
+                                StrokeShape="RoundRectangle 12"
+                                Padding="8,4">
+                                <HorizontalStackLayout Spacing="6" VerticalOptions="Center">
+                                    <Ellipse
+                                        x:Name="StatusBadgeDot"
+                                        WidthRequest="7"
+                                        HeightRequest="7"
+                                        Fill="{StaticResource WarningAmber}"
+                                        VerticalOptions="Center" />
+                                    <Label
+                                        x:Name="StatusBadgeText"
+                                        Text="Setup Required"
+                                        FontSize="11"
+                                        FontAttributes="Bold"
+                                        TextColor="{StaticResource WarningAmber}"
+                                        VerticalOptions="Center" />
+                                </HorizontalStackLayout>
+                            </Border>
+                        </Grid>
+
+                        <Label
+                            Text="Autonomous Background Telemetry Service"
+                            FontSize="12"
+                            TextColor="{AppThemeBinding Light={StaticResource TextMutedLight}, Dark={StaticResource TextMutedDark}}" />
+                    </VerticalStackLayout>
+                </Grid>
+            </Border>
+
+            <!-- 2. Live Telemetry & Metrics Card -->
+            <Border
+                x:Name="TelemetryDashboardCard"
+                Stroke="{AppThemeBinding Light={StaticResource BorderSubtleLight}, Dark={StaticResource BorderSubtleDark}}"
+                StrokeShape="RoundRectangle 18"
+                StrokeThickness="1"
+                Padding="18"
+                BackgroundColor="{AppThemeBinding Light={StaticResource CardBgLight}, Dark={StaticResource CardBgDark}}">
+                <Border.Shadow>
+                    <Shadow Brush="#10000000" Offset="0,4" Radius="10" Opacity="0.6" />
+                </Border.Shadow>
+
+                <VerticalStackLayout Spacing="16">
+                    <!-- Metrics Header -->
+                    <Grid ColumnDefinitions="*,Auto" VerticalOptions="Center">
+                        <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
+                            <Label Text="📊" FontSize="16" VerticalOptions="Center" />
+                            <Label
+                                Text="Live System Telemetry"
+                                FontSize="15"
+                                FontAttributes="Bold"
+                                TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"
+                                VerticalOptions="Center" />
+                        </HorizontalStackLayout>
+
+                        <!-- Manual Ping Button -->
+                        <Button
+                            Grid.Column="1"
+                            x:Name="ManualPingButton"
+                            Text="⚡ Send Ping"
+                            FontSize="11"
+                            FontAttributes="Bold"
+                            TextColor="{StaticResource BrandPrimary}"
+                            BackgroundColor="{AppThemeBinding Light={StaticResource BrandPrimaryLight}, Dark={StaticResource Gray900}}"
+                            BorderColor="{StaticResource BrandPrimary}"
+                            BorderWidth="1"
+                            HeightRequest="32"
+                            Padding="12,0"
+                            CornerRadius="8"
+                            Clicked="OnManualPingClicked" />
+                    </Grid>
+
+                    <!-- Stat Metric Tiles -->
+                    <Grid ColumnDefinitions="*,*,*" ColumnSpacing="10">
+                        <!-- Stat 1: Battery -->
+                        <Border
+                            Grid.Column="0"
+                            StrokeThickness="1"
+                            Stroke="{AppThemeBinding Light={StaticResource BorderSubtleLight}, Dark={StaticResource BorderSubtleDark}}"
+                            StrokeShape="RoundRectangle 12"
+                            Padding="10,12"
+                            BackgroundColor="{AppThemeBinding Light={StaticResource InputBgLight}, Dark={StaticResource InputBgDark}}">
+                            <VerticalStackLayout Spacing="3" HorizontalOptions="Center">
+                                <Label Text="🔋 Battery" FontSize="11" TextColor="{AppThemeBinding Light={StaticResource TextMutedLight}, Dark={StaticResource TextMutedDark}}" HorizontalOptions="Center" />
+                                <Label x:Name="BatteryValueLabel" Text="--%" FontSize="18" FontAttributes="Bold" TextColor="{StaticResource SuccessGreen}" HorizontalOptions="Center" />
+                                <Label Text="Monitored" FontSize="9" TextColor="{AppThemeBinding Light={StaticResource Gray400}, Dark={StaticResource Gray500}}" HorizontalOptions="Center" />
+                            </VerticalStackLayout>
+                        </Border>
+
+                        <!-- Stat 2: Interval -->
+                        <Border
+                            Grid.Column="1"
+                            StrokeThickness="1"
+                            Stroke="{AppThemeBinding Light={StaticResource BorderSubtleLight}, Dark={StaticResource BorderSubtleDark}}"
+                            StrokeShape="RoundRectangle 12"
+                            Padding="10,12"
+                            BackgroundColor="{AppThemeBinding Light={StaticResource InputBgLight}, Dark={StaticResource InputBgDark}}">
+                            <VerticalStackLayout Spacing="3" HorizontalOptions="Center">
+                                <Label Text="⏱️ Interval" FontSize="11" TextColor="{AppThemeBinding Light={StaticResource TextMutedLight}, Dark={StaticResource TextMutedDark}}" HorizontalOptions="Center" />
+                                <Label x:Name="IntervalValueLabel" Text="-- min" FontSize="18" FontAttributes="Bold" TextColor="{StaticResource BrandPrimary}" HorizontalOptions="Center" />
+                                <Label Text="Sync cycle" FontSize="9" TextColor="{AppThemeBinding Light={StaticResource Gray400}, Dark={StaticResource Gray500}}" HorizontalOptions="Center" />
+                            </VerticalStackLayout>
+                        </Border>
+
+                        <!-- Stat 3: Employee -->
+                        <Border
+                            Grid.Column="2"
+                            StrokeThickness="1"
+                            Stroke="{AppThemeBinding Light={StaticResource BorderSubtleLight}, Dark={StaticResource BorderSubtleDark}}"
+                            StrokeShape="RoundRectangle 12"
+                            Padding="10,12"
+                            BackgroundColor="{AppThemeBinding Light={StaticResource InputBgLight}, Dark={StaticResource InputBgDark}}">
+                            <VerticalStackLayout Spacing="3" HorizontalOptions="Center">
+                                <Label Text="👤 Employee" FontSize="11" TextColor="{AppThemeBinding Light={StaticResource TextMutedLight}, Dark={StaticResource TextMutedDark}}" HorizontalOptions="Center" />
+                                <Label x:Name="EmployeeIdValueLabel" Text="None" FontSize="18" FontAttributes="Bold" TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}" HorizontalOptions="Center" />
+                                <Label Text="ID Assigned" FontSize="9" TextColor="{AppThemeBinding Light={StaticResource Gray400}, Dark={StaticResource Gray500}}" HorizontalOptions="Center" />
+                            </VerticalStackLayout>
+                        </Border>
+                    </Grid>
+
+                    <!-- Live GPS & Transmission Details Box -->
+                    <Border
+                        StrokeThickness="1"
+                        Stroke="{AppThemeBinding Light={StaticResource BorderSubtleLight}, Dark={StaticResource BorderSubtleDark}}"
+                        StrokeShape="RoundRectangle 10"
+                        Padding="14,10"
+                        BackgroundColor="{AppThemeBinding Light={StaticResource InputBgLight}, Dark={StaticResource InputBgDark}}">
+                        <VerticalStackLayout Spacing="4">
+                            <Label
+                                x:Name="CoordinatesLabel"
+                                Text="🌐 Location: Standby / Awaiting GPS Fix"
+                                FontSize="12"
+                                TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray300}}" />
+                            <Label
+                                x:Name="LastSyncLabel"
+                                Text="🕒 Last Sync: Waiting for initial cycle"
+                                FontSize="11"
+                                TextColor="{AppThemeBinding Light={StaticResource TextMutedLight}, Dark={StaticResource TextMutedDark}}" />
+                        </VerticalStackLayout>
+                    </Border>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- 3. Configuration Form Card -->
+            <Border
+                Stroke="{AppThemeBinding Light={StaticResource BorderSubtleLight}, Dark={StaticResource BorderSubtleDark}}"
+                StrokeShape="RoundRectangle 18"
+                StrokeThickness="1"
+                Padding="22"
+                BackgroundColor="{AppThemeBinding Light={StaticResource CardBgLight}, Dark={StaticResource CardBgDark}}">
+                <Border.Shadow>
+                    <Shadow Brush="#10000000" Offset="0,4" Radius="10" Opacity="0.6" />
                 </Border.Shadow>
 
                 <VerticalStackLayout Spacing="18">
 
-                    <!-- Form Title -->
-                    <Label
-                        Text="Connection Settings"
-                        FontSize="18"
-                        FontAttributes="Bold"
-                        TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}" />
+                    <!-- Section Title & Subtitle -->
+                    <VerticalStackLayout Spacing="2">
+                        <Label
+                            Text="Configuration Settings"
+                            FontSize="17"
+                            FontAttributes="Bold"
+                            TextColor="{AppThemeBinding Light={StaticResource Gray950}, Dark={StaticResource White}}" />
+                        <Label
+                            Text="One-time setup locked for lifetime. Reinstallation required to modify."
+                            FontSize="11"
+                            TextColor="{AppThemeBinding Light={StaticResource TextMutedLight}, Dark={StaticResource TextMutedDark}}" />
+                    </VerticalStackLayout>
 
                     <!-- Employee ID Field -->
                     <VerticalStackLayout Spacing="6">
-                        <Label
-                            Text="Employee ID"
-                            FontSize="13"
-                            FontAttributes="Bold"
-                            TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}" />
+                        <HorizontalStackLayout Spacing="6">
+                            <Label Text="👤" FontSize="13" VerticalOptions="Center" />
+                            <Label
+                                Text="Employee ID"
+                                FontSize="13"
+                                FontAttributes="Bold"
+                                TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}" />
+                        </HorizontalStackLayout>
                         <Border
-                            Stroke="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}"
-                            StrokeShape="RoundRectangle 8"
+                            Stroke="{AppThemeBinding Light={StaticResource BorderSubtleLight}, Dark={StaticResource BorderSubtleDark}}"
+                            StrokeShape="RoundRectangle 10"
                             StrokeThickness="1"
-                            Padding="12,4">
+                            Padding="14,2"
+                            BackgroundColor="{AppThemeBinding Light={StaticResource InputBgLight}, Dark={StaticResource InputBgDark}}">
                             <Entry
                                 x:Name="EmployeeIdEntry"
-                                Placeholder="Enter employee ID (e.g. 1001)"
+                                Placeholder="e.g. 1001"
                                 Keyboard="Numeric"
                                 TextChanged="OnNumericEntryTextChanged"
                                 ClearButtonVisibility="WhileEditing" />
                         </Border>
+                        <Label
+                            Text="Numeric ID used to associate tracking data with employee records."
+                            FontSize="11"
+                            TextColor="{AppThemeBinding Light={StaticResource Gray400}, Dark={StaticResource Gray500}}" />
                     </VerticalStackLayout>
 
                     <!-- API Trigger Interval Field -->
                     <VerticalStackLayout Spacing="6">
-                        <Label
-                            Text="API Trigger Interval (minutes)"
-                            FontSize="13"
-                            FontAttributes="Bold"
-                            TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}" />
+                        <HorizontalStackLayout Spacing="6">
+                            <Label Text="⏱️" FontSize="13" VerticalOptions="Center" />
+                            <Label
+                                Text="API Trigger Interval (minutes)"
+                                FontSize="13"
+                                FontAttributes="Bold"
+                                TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}" />
+                        </HorizontalStackLayout>
                         <Border
-                            Stroke="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}"
-                            StrokeShape="RoundRectangle 8"
+                            Stroke="{AppThemeBinding Light={StaticResource BorderSubtleLight}, Dark={StaticResource BorderSubtleDark}}"
+                            StrokeShape="RoundRectangle 10"
                             StrokeThickness="1"
-                            Padding="12,4">
+                            Padding="14,2"
+                            BackgroundColor="{AppThemeBinding Light={StaticResource InputBgLight}, Dark={StaticResource InputBgDark}}">
                             <Entry
                                 x:Name="ApiIntervalEntry"
-                                Placeholder="Enter interval in minutes (e.g. 15)"
+                                Placeholder="e.g. 15"
                                 Keyboard="Numeric"
                                 TextChanged="OnNumericEntryTextChanged"
                                 ClearButtonVisibility="WhileEditing" />
                         </Border>
+                        <Label
+                            Text="Frequency of background GPS collection and API transmission in minutes."
+                            FontSize="11"
+                            TextColor="{AppThemeBinding Light={StaticResource Gray400}, Dark={StaticResource Gray500}}" />
                     </VerticalStackLayout>
 
                     <!-- API URL Field -->
                     <VerticalStackLayout Spacing="6">
-                        <Label
-                            Text="API URL"
-                            FontSize="13"
-                            FontAttributes="Bold"
-                            TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}" />
+                        <HorizontalStackLayout Spacing="6">
+                            <Label Text="🔗" FontSize="13" VerticalOptions="Center" />
+                            <Label
+                                Text="API Endpoint URL"
+                                FontSize="13"
+                                FontAttributes="Bold"
+                                TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}" />
+                        </HorizontalStackLayout>
                         <Border
-                            Stroke="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}"
-                            StrokeShape="RoundRectangle 8"
+                            Stroke="{AppThemeBinding Light={StaticResource BorderSubtleLight}, Dark={StaticResource BorderSubtleDark}}"
+                            StrokeShape="RoundRectangle 10"
                             StrokeThickness="1"
-                            Padding="12,4">
+                            Padding="14,2"
+                            BackgroundColor="{AppThemeBinding Light={StaticResource InputBgLight}, Dark={StaticResource InputBgDark}}">
                             <Entry
                                 x:Name="ApiUrlEntry"
                                 Placeholder="https://api.example.com/v1/sync"
                                 Keyboard="Url"
                                 ClearButtonVisibility="WhileEditing" />
                         </Border>
+                        <Label
+                            Text="Target HTTP POST endpoint receiving telemetry payload."
+                            FontSize="11"
+                            TextColor="{AppThemeBinding Light={StaticResource Gray400}, Dark={StaticResource Gray500}}" />
                     </VerticalStackLayout>
 
-                    <!-- Status Message Label -->
+                    <!-- Status Notification Label -->
                     <Label
                         x:Name="StatusMessageLabel"
-                        FontSize="13"
+                        FontSize="12"
+                        FontAttributes="Bold"
                         HorizontalOptions="Center"
                         HorizontalTextAlignment="Center"
                         IsVisible="False" />
 
-                    <!-- Save Button -->
+                    <!-- Save / Activate Button -->
                     <Button
                         x:Name="SaveSettingsButton"
-                        Text="Save Settings"
+                        Text="🔒 Save &amp; Activate Tracker"
                         FontSize="15"
                         FontAttributes="Bold"
-                        HeightRequest="48"
-                        CornerRadius="8"
+                        HeightRequest="52"
+                        CornerRadius="12"
+                        BackgroundColor="{StaticResource BrandPrimary}"
+                        TextColor="{StaticResource White}"
                         Clicked="OnSaveClicked"
-                        Margin="0,8,0,0" />
+                        Margin="0,8,0,0">
+                        <Button.Shadow>
+                            <Shadow Brush="#304F46E5" Offset="0,4" Radius="8" Opacity="0.8" />
+                        </Button.Shadow>
+                    </Button>
 
-                    <!-- Debug Reset Button (Visible only in DEBUG mode for development/testing) -->
+                    <!-- Debug Reset Button (Visible only during Visual Studio test runs) -->
                     <Button
                         x:Name="DebugResetButton"
-                        Text="Reset Settings (Debug Only)"
+                        Text="⚠️ Reset Settings (Debug Only)"
                         FontSize="12"
-                        TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray400}}"
+                        TextColor="{AppThemeBinding Light={StaticResource TextMutedLight}, Dark={StaticResource TextMutedDark}}"
                         BackgroundColor="Transparent"
-                        BorderColor="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray600}}"
+                        BorderColor="{AppThemeBinding Light={StaticResource BorderSubtleLight}, Dark={StaticResource BorderSubtleDark}}"
                         BorderWidth="1"
                         HeightRequest="36"
-                        CornerRadius="6"
+                        CornerRadius="8"
                         Clicked="OnDebugResetClicked"
                         IsVisible="False"
                         Margin="0,4,0,0" />
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- 4. Live Activity / Event Console Card -->
+            <Border
+                StrokeThickness="1"
+                Stroke="{AppThemeBinding Light={StaticResource BorderSubtleLight}, Dark={StaticResource BorderSubtleDark}}"
+                StrokeShape="RoundRectangle 14"
+                Padding="16,14"
+                BackgroundColor="{AppThemeBinding Light={StaticResource CardBgLight}, Dark={StaticResource CardBgDark}}">
+                <VerticalStackLayout Spacing="8">
+                    <HorizontalStackLayout Spacing="6" VerticalOptions="Center">
+                        <Label Text="💻" FontSize="13" VerticalOptions="Center" />
+                        <Label
+                            Text="System Activity Log"
+                            FontSize="12"
+                            FontAttributes="Bold"
+                            TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"
+                            VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+                    <Border
+                        StrokeThickness="0"
+                        StrokeShape="RoundRectangle 8"
+                        Padding="12,10"
+                        BackgroundColor="{AppThemeBinding Light={StaticResource InputBgLight}, Dark={StaticResource InputBgDark}}">
+                        <Label
+                            x:Name="ConsoleLogLabel"
+                            Text="System standby. Awaiting configuration activation."
+                            FontSize="11"
+                            FontFamily="Consolas"
+                            TextColor="{AppThemeBinding Light={StaticResource TextMutedLight}, Dark={StaticResource TextMutedDark}}"
+                            LineBreakMode="WordWrap" />
+                    </Border>
                 </VerticalStackLayout>
             </Border>
 
