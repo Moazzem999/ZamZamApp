@@ -201,17 +201,7 @@ namespace ZamZamApp.Services
                 }
 
 #if ANDROID
-                // 2. Notification permission (Android 13+ / API 33+)
-                if (Android.OS.Build.VERSION.SdkInt >= Android.OS.BuildVersionCodes.Tiramisu)
-                {
-                    var postNotifStatus = await Permissions.CheckStatusAsync<Permissions.PostNotifications>();
-                    if (postNotifStatus != PermissionStatus.Granted)
-                    {
-                        await Permissions.RequestAsync<Permissions.PostNotifications>();
-                    }
-                }
-
-                // 3. Background location permission (Android 10+ / API 29+)
+                // Background location permission (Android 10+ / API 29+)
                 if (Android.OS.Build.VERSION.SdkInt >= Android.OS.BuildVersionCodes.Q)
                 {
                     var bgStatus = await Permissions.CheckStatusAsync<Permissions.LocationAlways>();

