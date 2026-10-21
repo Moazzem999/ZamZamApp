@@ -43,16 +43,9 @@ namespace ZamZamApp
         {
             bool isSaved = Preferences.Default.Get(PrefIsSaved, false);
 
-            // Update Battery
-            try
-            {
-                double charge = Battery.Default.ChargeLevel;
-                BatteryValueLabel.Text = charge >= 0 ? $"{(int)Math.Round(charge * 100)}%" : "100%";
-            }
-            catch
-            {
-                BatteryValueLabel.Text = "N/A";
-            }
+            // Update Battery using native BatteryManager driver (eliminating N/A on modern Android devices)
+            int batteryLevel = TrackingManager.GetBatteryPercentage();
+            BatteryValueLabel.Text = $"{batteryLevel}%";
 
             // Update Interval
             string interval = Preferences.Default.Get(PrefApiTriggerInterval, string.Empty);

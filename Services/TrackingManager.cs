@@ -135,20 +135,8 @@ namespace ZamZamApp.Services
                 }
             }
 
-            // Fetch Battery Level
-            int batteryPercentage = 0;
-            try
-            {
-                double chargeLevel = Battery.Default.ChargeLevel;
-                if (chargeLevel >= 0)
-                {
-                    batteryPercentage = (int)Math.Round(chargeLevel * 100);
-                }
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"[Tracking] Failed to get battery level: {ex.Message}");
-            }
+            // Fetch Battery Level using native BatteryManager driver (supported across all Android versions without security exceptions)
+            int batteryPercentage = GetBatteryPercentage();
 
             // Build Payload
             var payload = new TrackingPayload
@@ -234,6 +222,67 @@ namespace ZamZamApp.Services
             catch
             {
             }
+        }
+
+        public static int GetBatteryPercentage()
+        {
+#if ANDROID
+            try
+            {
+                var context = global::Android.App.Application.Context;
+                var bm = (global::Android.OS.BatteryManager?)context.GetSystemService(global::Android.Content.Context.BatteryService);
+                if (bm != null)
+                {
+                    int capacity = bm.GetIntProperty((int)global::Android.OS.BatteryProperty.Capacity);
+                    if (capacity >= 0 && capacity <= 100)
+                    {
+                        return capacity;
+                    }
+                }
+
+                // Fallback: Read from sticky battery intent (safe with flags)
+                var filter = new global::Android.Content.IntentFilter(global::Android.Content.Intent.ActionBatteryChanged);
+                global::Android.Content.Intent? intent = null;
+                if (global::Android.OS.Build.VERSION.SdkInt >= global::Android.OS.BuildVersionCodes.Tiramisu)
+                {
+                    intent = context.RegisterReceiver(null, filter, global::Android.Content.ReceiverFlags.Exported);
+                }
+                else
+                {
+                    intent = context.RegisterReceiver(null, filter);
+                }
+
+                if (intent != null)
+                {
+                    int level = intent.GetIntExtra(global::Android.OS.BatteryManager.ExtraLevel, -1);
+                    int scale = intent.GetIntExtra(global::Android.OS.BatteryManager.ExtraScale, -1);
+                    if (level >= 0 && scale > 0)
+                    {
+                        return (int)Math.Round((level / (float)scale) * 100);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[Battery] Android native error: {ex.Message}");
+            }
+#endif
+
+            // Cross-platform MAUI Essentials fallback (Windows / Desktop / iOS)
+            try
+            {
+                double chargeLevel = Battery.Default.ChargeLevel;
+                if (chargeLevel >= 0)
+                {
+                    return (int)Math.Round(chargeLevel * 100);
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[Battery] MAUI default error: {ex.Message}");
+            }
+
+            return 100;
         }
     }
 }
