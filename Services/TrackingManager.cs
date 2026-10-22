@@ -112,7 +112,16 @@ namespace ZamZamApp.Services
             }
 
             long.TryParse(employeeIdStr, out long employeeId);
+            string dateOfBirth = Preferences.Default.Get(PrefDateOfBirth, string.Empty);
+            string mobile = Preferences.Default.Get(PrefMobile, string.Empty);
 
+            var payload = await BuildCurrentPayloadAsync(employeeId, dateOfBirth, mobile);
+            var (succeeded, _) = await SendPayloadAsync(payload, apiUrl);
+            return succeeded;
+        }
+
+        public async Task<TrackingPayload> BuildCurrentPayloadAsync(long employeeId, string dateOfBirth, string mobile)
+        {
             // Fetch Current Location
             Location? location = null;
             try
@@ -140,11 +149,7 @@ namespace ZamZamApp.Services
             // Fetch Battery Level using native BatteryManager driver (supported across all Android versions without security exceptions)
             int batteryPercentage = GetBatteryPercentage();
 
-            string dateOfBirth = Preferences.Default.Get(PrefDateOfBirth, string.Empty);
-            string mobile = Preferences.Default.Get(PrefMobile, string.Empty);
-
-            // Build Payload
-            var payload = new TrackingPayload
+            return new TrackingPayload
             {
                 Id = 0,
                 EmployeeId = employeeId,
@@ -157,7 +162,10 @@ namespace ZamZamApp.Services
                 BatteryPercentage = batteryPercentage,
                 RecordedAt = DateTime.Now.ToString("yyyy-MM-ddTHH:mm:ss.fffZ")
             };
+        }
 
+        public async Task<(bool succeeded, string responseText)> SendPayloadAsync(TrackingPayload payload, string apiUrl)
+        {
             string json = JsonSerializer.Serialize(payload);
             Log($"Sending payload to {apiUrl}:\n{json}", isSuccess: true);
 
@@ -165,22 +173,52 @@ namespace ZamZamApp.Services
             {
                 using var content = new StringContent(json, Encoding.UTF8, "application/json");
                 var response = await _httpClient.PostAsync(apiUrl, content);
+                string responseBody = await response.Content.ReadAsStringAsync();
 
-                if (response.IsSuccessStatusCode)
+                int statusCode = (int)response.StatusCode;
+                Log($"API response (Status: {statusCode}):\n{responseBody}", isSuccess: response.IsSuccessStatusCode);
+
+                bool isSucceeded = false;
+                bool foundSucceeded = false;
+
+                if (!string.IsNullOrWhiteSpace(responseBody))
                 {
-                    Log($"API triggered successfully (Status: {(int)response.StatusCode} {response.ReasonPhrase})", isSuccess: true);
-                    return true;
+                    try
+                    {
+                        using var doc = JsonDocument.Parse(responseBody);
+                        foreach (var prop in doc.RootElement.EnumerateObject())
+                        {
+                            if (string.Equals(prop.Name, "succeeded", StringComparison.OrdinalIgnoreCase))
+                            {
+                                if (prop.Value.ValueKind == JsonValueKind.True)
+                                    isSucceeded = true;
+                                else if (prop.Value.ValueKind == JsonValueKind.False)
+                                    isSucceeded = false;
+                                else if (prop.Value.ValueKind == JsonValueKind.String &&
+                                         bool.TryParse(prop.Value.GetString(), out bool b))
+                                    isSucceeded = b;
+
+                                foundSucceeded = true;
+                                break;
+                            }
+                        }
+                    }
+                    catch
+                    {
+                    }
                 }
-                else
+
+                if (!foundSucceeded)
                 {
-                    Log($"API trigger failed: {(int)response.StatusCode} {response.ReasonPhrase}", isSuccess: false);
-                    return false;
+                    isSucceeded = response.IsSuccessStatusCode;
                 }
+
+                return (isSucceeded, responseBody);
             }
             catch (Exception ex)
             {
                 Log($"Error sending API request: {ex.Message}", isSuccess: false);
-                return false;
+                return (false, ex.Message);
             }
         }
 

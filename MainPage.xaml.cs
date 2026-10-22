@@ -262,21 +262,56 @@ namespace ZamZamApp
             // Ensure permissions and battery optimization exemption are requested
             await TrackingManager.Instance.RequestPermissionsAndBatteryOptimizationAsync();
 
-            // Save settings to persistent storage
-            Preferences.Default.Set(PrefEmployeeId, employeeIdText);
-            Preferences.Default.Set(PrefDateOfBirth, formattedDob);
-            Preferences.Default.Set(PrefMobile, mobileText);
-            Preferences.Default.Set(PrefApiTriggerInterval, intervalText);
-            Preferences.Default.Set(PrefApiUrl, apiUrlText);
-            Preferences.Default.Set(PrefIsSaved, true);
+            // Set UI to verifying state
+            SaveSettingsButton.IsEnabled = false;
+            SaveSettingsButton.Text = "⏳ Verifying with API...";
+            ShowStatus("Calling API to verify credentials...", isError: false);
 
-            // Permanently lock the form and button
-            DisableFormForLifetime();
+            try
+            {
+                // Call API before saving and locking
+                var testPayload = await TrackingManager.Instance.BuildCurrentPayloadAsync(employeeId, formattedDob, mobileText);
+                var (succeeded, responseText) = await TrackingManager.Instance.SendPayloadAsync(testPayload, apiUrlText);
 
-            // Start the background tracking service immediately
-            TrackingManager.Instance.StartTracking();
+                if (!succeeded)
+                {
+                    // If API returns succeeded = false or fails, show response and DO NOT lock
+                    string displayResponse = !string.IsNullOrWhiteSpace(responseText) 
+                        ? responseText 
+                        : "API returned succeeded = false or failed to respond.";
 
-            await DisplayAlertAsync("Saved & Tracking Started", "Settings are locked. Background tracking has started and will continue running even if the app is closed.", "OK");
+                    ShowStatus($"API Verification Failed: {displayResponse}", isError: true);
+
+                    SaveSettingsButton.IsEnabled = true;
+                    SaveSettingsButton.Text = "🔒 Save & Activate Tracker";
+
+                    await DisplayAlertAsync("API Verification Failed", displayResponse, "OK");
+                    return;
+                }
+
+                // If API returns succeeded = true, save settings and permanently lock
+                Preferences.Default.Set(PrefEmployeeId, employeeIdText);
+                Preferences.Default.Set(PrefDateOfBirth, formattedDob);
+                Preferences.Default.Set(PrefMobile, mobileText);
+                Preferences.Default.Set(PrefApiTriggerInterval, intervalText);
+                Preferences.Default.Set(PrefApiUrl, apiUrlText);
+                Preferences.Default.Set(PrefIsSaved, true);
+
+                // Permanently lock the form and button
+                DisableFormForLifetime();
+
+                // Start the background tracking service immediately
+                TrackingManager.Instance.StartTracking();
+
+                await DisplayAlertAsync("Verified & Tracking Started", "API verified successfully (succeeded = true). Settings are locked and background tracking has started.", "OK");
+            }
+            catch (Exception ex)
+            {
+                ShowStatus($"Error contacting API: {ex.Message}", isError: true);
+                SaveSettingsButton.IsEnabled = true;
+                SaveSettingsButton.Text = "🔒 Save & Activate Tracker";
+                await DisplayAlertAsync("Connection Error", $"Failed to contact server: {ex.Message}", "OK");
+            }
         }
 
 #if DEBUG
