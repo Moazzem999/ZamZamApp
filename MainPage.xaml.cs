@@ -7,6 +7,8 @@ namespace ZamZamApp
         private const string PrefEmployeeId = TrackingManager.PrefEmployeeId;
         private const string PrefDateOfBirth = TrackingManager.PrefDateOfBirth;
         private const string PrefMobile = TrackingManager.PrefMobile;
+        private const string PrefApiStartTime = TrackingManager.PrefApiStartTime;
+        private const string PrefApiEndTime = TrackingManager.PrefApiEndTime;
         private const string PrefApiTriggerInterval = TrackingManager.PrefApiTriggerInterval;
         private const string PrefApiUrl = TrackingManager.PrefApiUrl;
         private const string PrefIsSaved = TrackingManager.PrefIsSaved;
@@ -49,9 +51,20 @@ namespace ZamZamApp
             int batteryLevel = TrackingManager.GetBatteryPercentage();
             BatteryValueLabel.Text = $"{batteryLevel}%";
 
-            // Update Interval
+            // Update Interval & Duration
             string interval = Preferences.Default.Get(PrefApiTriggerInterval, string.Empty);
             IntervalValueLabel.Text = !string.IsNullOrEmpty(interval) ? $"{interval}m" : "--";
+
+            string startTimeStr = Preferences.Default.Get(PrefApiStartTime, "10:30");
+            string endTimeStr = Preferences.Default.Get(PrefApiEndTime, "18:30");
+            if (TimeSpan.TryParse(startTimeStr, out var s) && TimeSpan.TryParse(endTimeStr, out var e))
+            {
+                IntervalSubLabel.Text = $"{DateTime.Today.Add(s):h:mm tt} - {DateTime.Today.Add(e):h:mm tt}";
+            }
+            else
+            {
+                IntervalSubLabel.Text = "Sync cycle";
+            }
 
             // Update Employee ID
             string empId = Preferences.Default.Get(PrefEmployeeId, string.Empty);
@@ -128,6 +141,27 @@ namespace ZamZamApp
             EmployeeIdEntry.Text = Preferences.Default.Get(PrefEmployeeId, string.Empty);
             DateOfBirthEntry.Text = Preferences.Default.Get(PrefDateOfBirth, string.Empty);
             MobileEntry.Text = Preferences.Default.Get(PrefMobile, string.Empty);
+
+            string savedStart = Preferences.Default.Get(PrefApiStartTime, "10:30");
+            if (TimeSpan.TryParse(savedStart, out TimeSpan startTime))
+            {
+                StartTimePicker.Time = startTime;
+            }
+            else
+            {
+                StartTimePicker.Time = new TimeSpan(10, 30, 0);
+            }
+
+            string savedEnd = Preferences.Default.Get(PrefApiEndTime, "18:30");
+            if (TimeSpan.TryParse(savedEnd, out TimeSpan endTime))
+            {
+                EndTimePicker.Time = endTime;
+            }
+            else
+            {
+                EndTimePicker.Time = new TimeSpan(18, 30, 0);
+            }
+
             ApiIntervalEntry.Text = Preferences.Default.Get(PrefApiTriggerInterval, string.Empty);
             ApiUrlEntry.Text = Preferences.Default.Get(PrefApiUrl, string.Empty);
 
@@ -146,6 +180,8 @@ namespace ZamZamApp
             EmployeeIdEntry.IsReadOnly = true;
             DateOfBirthEntry.IsReadOnly = true;
             MobileEntry.IsReadOnly = true;
+            StartTimePicker.IsEnabled = false;
+            EndTimePicker.IsEnabled = false;
             ApiIntervalEntry.IsReadOnly = true;
             ApiUrlEntry.IsReadOnly = true;
 
@@ -290,9 +326,16 @@ namespace ZamZamApp
                 }
 
                 // If API returns succeeded = true, save settings and permanently lock
+                TimeSpan startTime = StartTimePicker.Time ?? new TimeSpan(10, 30, 0);
+                TimeSpan endTime = EndTimePicker.Time ?? new TimeSpan(18, 30, 0);
+                string formattedStartTime = startTime.ToString(@"hh\:mm");
+                string formattedEndTime = endTime.ToString(@"hh\:mm");
+
                 Preferences.Default.Set(PrefEmployeeId, employeeIdText);
                 Preferences.Default.Set(PrefDateOfBirth, formattedDob);
                 Preferences.Default.Set(PrefMobile, mobileText);
+                Preferences.Default.Set(PrefApiStartTime, formattedStartTime);
+                Preferences.Default.Set(PrefApiEndTime, formattedEndTime);
                 Preferences.Default.Set(PrefApiTriggerInterval, intervalText);
                 Preferences.Default.Set(PrefApiUrl, apiUrlText);
                 Preferences.Default.Set(PrefIsSaved, true);
@@ -327,6 +370,8 @@ namespace ZamZamApp
             Preferences.Default.Remove(PrefEmployeeId);
             Preferences.Default.Remove(PrefDateOfBirth);
             Preferences.Default.Remove(PrefMobile);
+            Preferences.Default.Remove(PrefApiStartTime);
+            Preferences.Default.Remove(PrefApiEndTime);
             Preferences.Default.Remove(PrefApiTriggerInterval);
             Preferences.Default.Remove(PrefApiUrl);
             Preferences.Default.Remove(PrefIsSaved);
@@ -334,12 +379,16 @@ namespace ZamZamApp
             EmployeeIdEntry.Text = string.Empty;
             DateOfBirthEntry.Text = string.Empty;
             MobileEntry.Text = string.Empty;
+            StartTimePicker.Time = new TimeSpan(10, 30, 0);
+            EndTimePicker.Time = new TimeSpan(18, 30, 0);
             ApiIntervalEntry.Text = string.Empty;
             ApiUrlEntry.Text = string.Empty;
 
             EmployeeIdEntry.IsReadOnly = false;
             DateOfBirthEntry.IsReadOnly = false;
             MobileEntry.IsReadOnly = false;
+            StartTimePicker.IsEnabled = true;
+            EndTimePicker.IsEnabled = true;
             ApiIntervalEntry.IsReadOnly = false;
             ApiUrlEntry.IsReadOnly = false;
 

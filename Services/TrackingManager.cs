@@ -16,6 +16,8 @@ namespace ZamZamApp.Services
         public const string PrefEmployeeId = "ZamZam_EmployeeId";
         public const string PrefDateOfBirth = "ZamZam_DateOfBirth";
         public const string PrefMobile = "ZamZam_Mobile";
+        public const string PrefApiStartTime = "ZamZam_ApiStartTime";
+        public const string PrefApiEndTime = "ZamZam_ApiEndTime";
         public const string PrefApiTriggerInterval = "ZamZam_ApiTriggerInterval";
         public const string PrefApiUrl = "ZamZam_ApiUrl";
         public const string PrefIsSaved = "ZamZam_IsSettingsSaved";
@@ -100,8 +102,60 @@ namespace ZamZamApp.Services
             }
         }
 
+        public bool IsWithinTriggerDuration()
+        {
+            string startStr = Preferences.Default.Get(PrefApiStartTime, string.Empty);
+            string endStr = Preferences.Default.Get(PrefApiEndTime, string.Empty);
+
+            if (string.IsNullOrWhiteSpace(startStr) && string.IsNullOrWhiteSpace(endStr))
+            {
+                return true;
+            }
+
+            if (!TimeSpan.TryParse(startStr, out TimeSpan startTime))
+            {
+                startTime = new TimeSpan(10, 30, 0);
+            }
+
+            if (!TimeSpan.TryParse(endStr, out TimeSpan endTime))
+            {
+                endTime = new TimeSpan(18, 30, 0);
+            }
+
+            TimeSpan now = DateTime.Now.TimeOfDay;
+
+            if (startTime == endTime)
+            {
+                return true;
+            }
+
+            if (startTime < endTime)
+            {
+                return now >= startTime && now <= endTime;
+            }
+            else
+            {
+                return now >= startTime || now <= endTime;
+            }
+        }
+
+        public static string FormatTimeSpanDisplay(TimeSpan time)
+        {
+            return DateTime.Today.Add(time).ToString("hh:mm tt");
+        }
+
         public async Task<bool> SendTrackingUpdateAsync()
         {
+            if (!IsWithinTriggerDuration())
+            {
+                string startStr = Preferences.Default.Get(PrefApiStartTime, "10:30");
+                string endStr = Preferences.Default.Get(PrefApiEndTime, "18:30");
+                TimeSpan.TryParse(startStr, out var s);
+                TimeSpan.TryParse(endStr, out var e);
+                Log($"Current time ({DateTime.Now:hh:mm tt}) is outside operating duration ({FormatTimeSpanDisplay(s)} - {FormatTimeSpanDisplay(e)}). API trigger skipped.", isSuccess: true);
+                return false;
+            }
+
             string employeeIdStr = Preferences.Default.Get(PrefEmployeeId, string.Empty);
             string apiUrl = Preferences.Default.Get(PrefApiUrl, string.Empty);
 
