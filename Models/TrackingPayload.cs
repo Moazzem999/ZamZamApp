@@ -10,6 +10,12 @@ namespace ZamZamApp.Models
         [JsonPropertyName("employeeId")]
         public long EmployeeId { get; set; }
 
+        [JsonPropertyName("dateOfBirth")]
+        public string DateOfBirth { get; set; } = string.Empty;
+
+        [JsonPropertyName("mobile")]
+        public string Mobile { get; set; } = string.Empty;
+
         [JsonPropertyName("latitude")]
         public double Latitude { get; set; }
 

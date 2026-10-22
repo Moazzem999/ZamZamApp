@@ -5,6 +5,8 @@ namespace ZamZamApp
     public partial class MainPage : ContentPage
     {
         private const string PrefEmployeeId = TrackingManager.PrefEmployeeId;
+        private const string PrefDateOfBirth = TrackingManager.PrefDateOfBirth;
+        private const string PrefMobile = TrackingManager.PrefMobile;
         private const string PrefApiTriggerInterval = TrackingManager.PrefApiTriggerInterval;
         private const string PrefApiUrl = TrackingManager.PrefApiUrl;
         private const string PrefIsSaved = TrackingManager.PrefIsSaved;
@@ -124,6 +126,8 @@ namespace ZamZamApp
         private void LoadSavedSettings()
         {
             EmployeeIdEntry.Text = Preferences.Default.Get(PrefEmployeeId, string.Empty);
+            DateOfBirthEntry.Text = Preferences.Default.Get(PrefDateOfBirth, string.Empty);
+            MobileEntry.Text = Preferences.Default.Get(PrefMobile, string.Empty);
             ApiIntervalEntry.Text = Preferences.Default.Get(PrefApiTriggerInterval, string.Empty);
             ApiUrlEntry.Text = Preferences.Default.Get(PrefApiUrl, string.Empty);
 
@@ -140,6 +144,8 @@ namespace ZamZamApp
             SaveSettingsButton.Opacity = 0.7;
 
             EmployeeIdEntry.IsReadOnly = true;
+            DateOfBirthEntry.IsReadOnly = true;
+            MobileEntry.IsReadOnly = true;
             ApiIntervalEntry.IsReadOnly = true;
             ApiUrlEntry.IsReadOnly = true;
 
@@ -170,6 +176,8 @@ namespace ZamZamApp
             }
 
             string employeeIdText = EmployeeIdEntry.Text?.Trim() ?? string.Empty;
+            string dobText = DateOfBirthEntry.Text?.Trim() ?? string.Empty;
+            string mobileText = MobileEntry.Text?.Trim() ?? string.Empty;
             string intervalText = ApiIntervalEntry.Text?.Trim() ?? string.Empty;
             string apiUrlText = ApiUrlEntry.Text?.Trim() ?? string.Empty;
 
@@ -185,6 +193,38 @@ namespace ZamZamApp
             {
                 ShowStatus("Employee ID must be a valid positive number.", isError: true);
                 EmployeeIdEntry.Focus();
+                return;
+            }
+
+            // Validate Date of Birth
+            if (string.IsNullOrWhiteSpace(dobText))
+            {
+                ShowStatus("Please enter Date of Birth (YYYY-MM-DD).", isError: true);
+                DateOfBirthEntry.Focus();
+                return;
+            }
+
+            if (!DateTime.TryParse(dobText, out DateTime dobDate) || dobDate > DateTime.Today || dobDate < DateTime.Today.AddYears(-120))
+            {
+                ShowStatus("Please enter a valid Date of Birth (YYYY-MM-DD) not in the future.", isError: true);
+                DateOfBirthEntry.Focus();
+                return;
+            }
+
+            string formattedDob = dobDate.ToString("yyyy-MM-dd");
+
+            // Validate Mobile Number
+            if (string.IsNullOrWhiteSpace(mobileText))
+            {
+                ShowStatus("Please enter a Mobile number.", isError: true);
+                MobileEntry.Focus();
+                return;
+            }
+
+            if (mobileText.Length < 11)
+            {
+                ShowStatus("Please enter a valid Mobile number.", isError: true);
+                MobileEntry.Focus();
                 return;
             }
 
@@ -224,6 +264,8 @@ namespace ZamZamApp
 
             // Save settings to persistent storage
             Preferences.Default.Set(PrefEmployeeId, employeeIdText);
+            Preferences.Default.Set(PrefDateOfBirth, formattedDob);
+            Preferences.Default.Set(PrefMobile, mobileText);
             Preferences.Default.Set(PrefApiTriggerInterval, intervalText);
             Preferences.Default.Set(PrefApiUrl, apiUrlText);
             Preferences.Default.Set(PrefIsSaved, true);
@@ -248,15 +290,21 @@ namespace ZamZamApp
             TrackingManager.Instance.StopTracking();
 
             Preferences.Default.Remove(PrefEmployeeId);
+            Preferences.Default.Remove(PrefDateOfBirth);
+            Preferences.Default.Remove(PrefMobile);
             Preferences.Default.Remove(PrefApiTriggerInterval);
             Preferences.Default.Remove(PrefApiUrl);
             Preferences.Default.Remove(PrefIsSaved);
 
             EmployeeIdEntry.Text = string.Empty;
+            DateOfBirthEntry.Text = string.Empty;
+            MobileEntry.Text = string.Empty;
             ApiIntervalEntry.Text = string.Empty;
             ApiUrlEntry.Text = string.Empty;
 
             EmployeeIdEntry.IsReadOnly = false;
+            DateOfBirthEntry.IsReadOnly = false;
+            MobileEntry.IsReadOnly = false;
             ApiIntervalEntry.IsReadOnly = false;
             ApiUrlEntry.IsReadOnly = false;
 

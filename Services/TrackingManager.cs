@@ -14,6 +14,8 @@ namespace ZamZamApp.Services
         private CancellationTokenSource? _timerCts;
 
         public const string PrefEmployeeId = "ZamZam_EmployeeId";
+        public const string PrefDateOfBirth = "ZamZam_DateOfBirth";
+        public const string PrefMobile = "ZamZam_Mobile";
         public const string PrefApiTriggerInterval = "ZamZam_ApiTriggerInterval";
         public const string PrefApiUrl = "ZamZam_ApiUrl";
         public const string PrefIsSaved = "ZamZam_IsSettingsSaved";
@@ -138,11 +140,16 @@ namespace ZamZamApp.Services
             // Fetch Battery Level using native BatteryManager driver (supported across all Android versions without security exceptions)
             int batteryPercentage = GetBatteryPercentage();
 
+            string dateOfBirth = Preferences.Default.Get(PrefDateOfBirth, string.Empty);
+            string mobile = Preferences.Default.Get(PrefMobile, string.Empty);
+
             // Build Payload
             var payload = new TrackingPayload
             {
                 Id = 0,
                 EmployeeId = employeeId,
+                DateOfBirth = dateOfBirth,
+                Mobile = mobile,
                 Latitude = location?.Latitude ?? 0,
                 Longitude = location?.Longitude ?? 0,
                 Accuracy = location?.Accuracy ?? 0,

@@ -238,6 +238,62 @@
                             TextColor="{AppThemeBinding Light={StaticResource Gray400}, Dark={StaticResource Gray500}}" />
                     </VerticalStackLayout>
 
+                    <!-- Date of Birth Field -->
+                    <VerticalStackLayout Spacing="6">
+                        <HorizontalStackLayout Spacing="6">
+                            <Label Text="📅" FontSize="13" VerticalOptions="Center" />
+                            <Label
+                                Text="Date of Birth"
+                                FontSize="13"
+                                FontAttributes="Bold"
+                                TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}" />
+                        </HorizontalStackLayout>
+                        <Border
+                            Stroke="{AppThemeBinding Light={StaticResource BorderSubtleLight}, Dark={StaticResource BorderSubtleDark}}"
+                            StrokeShape="RoundRectangle 10"
+                            StrokeThickness="1"
+                            Padding="14,2"
+                            BackgroundColor="{AppThemeBinding Light={StaticResource InputBgLight}, Dark={StaticResource InputBgDark}}">
+                            <Entry
+                                x:Name="DateOfBirthEntry"
+                                Placeholder="YYYY-MM-DD (e.g. 1995-08-25)"
+                                Keyboard="Text"
+                                ClearButtonVisibility="WhileEditing" />
+                        </Border>
+                        <Label
+                            Text="Employee date of birth formatted as YYYY-MM-DD."
+                            FontSize="11"
+                            TextColor="{AppThemeBinding Light={StaticResource Gray400}, Dark={StaticResource Gray500}}" />
+                    </VerticalStackLayout>
+
+                    <!-- Mobile Number Field -->
+                    <VerticalStackLayout Spacing="6">
+                        <HorizontalStackLayout Spacing="6">
+                            <Label Text="📱" FontSize="13" VerticalOptions="Center" />
+                            <Label
+                                Text="Mobile Number"
+                                FontSize="13"
+                                FontAttributes="Bold"
+                                TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}" />
+                        </HorizontalStackLayout>
+                        <Border
+                            Stroke="{AppThemeBinding Light={StaticResource BorderSubtleLight}, Dark={StaticResource BorderSubtleDark}}"
+                            StrokeShape="RoundRectangle 10"
+                            StrokeThickness="1"
+                            Padding="14,2"
+                            BackgroundColor="{AppThemeBinding Light={StaticResource InputBgLight}, Dark={StaticResource InputBgDark}}">
+                            <Entry
+                                x:Name="MobileEntry"
+                                Placeholder="e.g. 01712345678"
+                                Keyboard="Telephone"
+                                ClearButtonVisibility="WhileEditing" />
+                        </Border>
+                        <Label
+                            Text="Primary mobile contact number used for identification."
+                            FontSize="11"
+                            TextColor="{AppThemeBinding Light={StaticResource Gray400}, Dark={StaticResource Gray500}}" />
+                    </VerticalStackLayout>
+
                     <!-- API Trigger Interval Field -->
                     <VerticalStackLayout Spacing="6">
                         <HorizontalStackLayout Spacing="6">
