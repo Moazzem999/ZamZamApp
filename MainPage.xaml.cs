@@ -177,6 +177,11 @@ namespace ZamZamApp
             SaveSettingsButton.Text = "🔒 Settings Locked & Active";
             SaveSettingsButton.Opacity = 0.7;
 
+            // Hide the labels and their corresponding input fields upon successful API connection
+            EmployeeIdFieldContainer.IsVisible = false;
+            DateOfBirthFieldContainer.IsVisible = false;
+            ApiUrlFieldContainer.IsVisible = false;
+
             EmployeeIdEntry.IsReadOnly = true;
             DateOfBirthEntry.IsReadOnly = true;
             MobileEntry.IsReadOnly = true;
@@ -311,6 +316,11 @@ namespace ZamZamApp
 
                 if (!succeeded)
                 {
+                    // If API connection fails, keep all labels and input fields visible so the user can review/update and try again
+                    EmployeeIdFieldContainer.IsVisible = true;
+                    DateOfBirthFieldContainer.IsVisible = true;
+                    ApiUrlFieldContainer.IsVisible = true;
+
                     // If API returns succeeded = false or fails, show response and DO NOT lock
                     string displayResponse = !string.IsNullOrWhiteSpace(responseText) 
                         ? responseText 
@@ -325,7 +335,7 @@ namespace ZamZamApp
                     return;
                 }
 
-                // If API returns succeeded = true, save settings and permanently lock
+                // If API returns succeeded = true, save settings and permanently lock (which hides the 3 fields)
                 TimeSpan startTime = StartTimePicker.Time ?? new TimeSpan(10, 30, 0);
                 TimeSpan endTime = EndTimePicker.Time ?? new TimeSpan(18, 30, 0);
                 string formattedStartTime = startTime.ToString(@"hh\:mm");
@@ -340,7 +350,7 @@ namespace ZamZamApp
                 Preferences.Default.Set(PrefApiUrl, apiUrlText);
                 Preferences.Default.Set(PrefIsSaved, true);
 
-                // Permanently lock the form and button
+                // Permanently lock the form and button (hides Employee ID, Date of Birth, and API Endpoint URL)
                 DisableFormForLifetime();
 
                 // Start the background tracking service immediately
@@ -350,6 +360,11 @@ namespace ZamZamApp
             }
             catch (Exception ex)
             {
+                // Ensure all labels and input fields remain visible on connection failure
+                EmployeeIdFieldContainer.IsVisible = true;
+                DateOfBirthFieldContainer.IsVisible = true;
+                ApiUrlFieldContainer.IsVisible = true;
+
                 ShowStatus($"Error contacting API: {ex.Message}", isError: true);
                 SaveSettingsButton.IsEnabled = true;
                 SaveSettingsButton.Text = "🔒 Save & Activate Tracker";
@@ -391,6 +406,11 @@ namespace ZamZamApp
             EndTimePicker.IsEnabled = true;
             ApiIntervalEntry.IsReadOnly = false;
             ApiUrlEntry.IsReadOnly = false;
+
+            // Restore visibility of fields
+            EmployeeIdFieldContainer.IsVisible = true;
+            DateOfBirthFieldContainer.IsVisible = true;
+            ApiUrlFieldContainer.IsVisible = true;
 
             SaveSettingsButton.IsEnabled = true;
             SaveSettingsButton.Text = "🔒 Save & Activate Tracker";

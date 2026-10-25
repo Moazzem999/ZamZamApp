@@ -210,7 +210,7 @@
                     </VerticalStackLayout>
 
                     <!-- Employee ID Field -->
-                    <VerticalStackLayout Spacing="6">
+                    <VerticalStackLayout x:Name="EmployeeIdFieldContainer" Spacing="6">
                         <HorizontalStackLayout Spacing="6">
                             <Label Text="👤" FontSize="13" VerticalOptions="Center" />
                             <Label
@@ -239,7 +239,7 @@
                     </VerticalStackLayout>
 
                     <!-- Date of Birth Field -->
-                    <VerticalStackLayout Spacing="6">
+                    <VerticalStackLayout x:Name="DateOfBirthFieldContainer" Spacing="6">
                         <HorizontalStackLayout Spacing="6">
                             <Label Text="📅" FontSize="13" VerticalOptions="Center" />
                             <Label
@@ -446,7 +446,7 @@
                     </VerticalStackLayout>
 
                     <!-- API URL Field -->
-                    <VerticalStackLayout Spacing="6">
+                    <VerticalStackLayout x:Name="ApiUrlFieldContainer" Spacing="6">
                         <HorizontalStackLayout Spacing="6">
                             <Label Text="🔗" FontSize="13" VerticalOptions="Center" />
                             <Label
