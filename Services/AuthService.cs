@@ -54,13 +54,13 @@ namespace ZamZamApp.Services
             }
         }
 
-        public async Task<(bool Succeeded, string Message, LoginData? Data)> LoginAsync(string email, string password)
+        public async Task<(bool Succeeded, string Message, LoginData? Data)> LoginAsync(string userName, string password)
         {
             try
             {
                 var requestPayload = new LoginRequest
                 {
-                    Email = email.Trim(),
+                    UserName = userName.Trim(),
                     Password = password
                 };
 

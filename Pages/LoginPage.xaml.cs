@@ -23,13 +23,13 @@ namespace ZamZamApp.Pages
 
         private async void OnLoginClicked(object? sender, EventArgs e)
         {
-            string email = EmailEntry.Text?.Trim() ?? string.Empty;
+            string userName = UserNameEntry.Text?.Trim() ?? string.Empty;
             string password = PasswordEntry.Text ?? string.Empty;
 
-            if (string.IsNullOrWhiteSpace(email))
+            if (string.IsNullOrWhiteSpace(userName))
             {
-                ShowStatus("Please enter your email address.", isError: true);
-                EmailEntry.Focus();
+                ShowStatus("Please enter your username.", isError: true);
+                UserNameEntry.Focus();
                 return;
             }
 
@@ -45,7 +45,7 @@ namespace ZamZamApp.Pages
 
             try
             {
-                var (succeeded, message, data) = await AuthService.Instance.LoginAsync(email, password);
+                var (succeeded, message, data) = await AuthService.Instance.LoginAsync(userName, password);
 
                 if (!succeeded || data == null)
                 {
@@ -54,7 +54,7 @@ namespace ZamZamApp.Pages
                     return;
                 }
 
-                string displayName = data.User?.Name ?? email;
+                string displayName = data.User?.Name ?? userName;
                 ShowStatus($"Welcome, {displayName}!", isError: false);
 
                 await DisplayAlertAsync(
@@ -78,7 +78,7 @@ namespace ZamZamApp.Pages
         {
             LoginSubmitButton.IsEnabled = !isLoading;
             LoginSubmitButton.Text = isLoading ? "⏳ Signing In..." : "🔑 Sign In";
-            EmailEntry.IsEnabled = !isLoading;
+            UserNameEntry.IsEnabled = !isLoading;
             PasswordEntry.IsEnabled = !isLoading;
         }
 

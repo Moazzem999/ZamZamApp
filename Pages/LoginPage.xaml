@@ -94,12 +94,12 @@
 
                 <VerticalStackLayout Spacing="18">
 
-                    <!-- Email Field -->
+                    <!-- Username Field -->
                     <VerticalStackLayout Spacing="6">
                         <HorizontalStackLayout Spacing="6">
-                            <Label Text="✉️" FontSize="13" VerticalOptions="Center" />
+                            <Label Text="👤" FontSize="13" VerticalOptions="Center" />
                             <Label
-                                Text="Email Address"
+                                Text="Username"
                                 FontSize="13"
                                 FontAttributes="Bold"
                                 TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}" />
@@ -111,9 +111,9 @@
                             Padding="14,2"
                             BackgroundColor="{AppThemeBinding Light={StaticResource InputBgLight}, Dark={StaticResource InputBgDark}}">
                             <Entry
-                                x:Name="EmailEntry"
-                                Placeholder="e.g. Mahfuz@gmail.com"
-                                Keyboard="Email"
+                                x:Name="UserNameEntry"
+                                Placeholder="Enter username or email"
+                                Keyboard="Text"
                                 ReturnType="Next"
                                 ClearButtonVisibility="WhileEditing" />
                         </Border>
