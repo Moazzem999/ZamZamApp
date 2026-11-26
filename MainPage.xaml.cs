@@ -464,6 +464,7 @@ namespace ZamZamApp
                 }
 
                 AuthStatusLabel.TextColor = Color.FromArgb("#10B981");
+                TasksButton.IsVisible = true;
                 LogoutButton.IsVisible = true;
                 LoginButton.Text = "🔑 Login";
             }
@@ -474,9 +475,15 @@ namespace ZamZamApp
                     Label.TextColorProperty,
                     Color.FromArgb("#64748B"),
                     Color.FromArgb("#94A3B8"));
+                TasksButton.IsVisible = false;
                 LogoutButton.IsVisible = false;
                 LoginButton.Text = "🔑 Login";
             }
+        }
+
+        private async void OnTasksClicked(object? sender, EventArgs e)
+        {
+            await Shell.Current.GoToAsync(nameof(Pages.EmployeeTasksPage));
         }
 
         private async void OnLoginClicked(object? sender, EventArgs e)

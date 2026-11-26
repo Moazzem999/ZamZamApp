@@ -62,7 +62,7 @@ namespace ZamZamApp.Pages
                     $"Signed in as {displayName} ({data.User?.RoleName ?? "User"}).",
                     "OK");
 
-                await Shell.Current.GoToAsync("..");
+                await Shell.Current.GoToAsync($"../{nameof(EmployeeTasksPage)}");
             }
             catch (Exception ex)
             {

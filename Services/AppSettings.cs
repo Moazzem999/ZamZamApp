@@ -20,5 +20,6 @@ namespace ZamZamApp.Services
         }
 
         public static string LoginEndpoint => $"{BaseUrl}/api/Auth/Login";
+        public static string EmployeeTaskGetAllEndpoint => $"{BaseUrl}/api/EmployeeTask/GetAll";
     }
 }

@@ -6,6 +6,7 @@ namespace ZamZamApp
         {
             InitializeComponent();
             Routing.RegisterRoute(nameof(Pages.LoginPage), typeof(Pages.LoginPage));
+            Routing.RegisterRoute(nameof(Pages.EmployeeTasksPage), typeof(Pages.EmployeeTasksPage));
         }
     }
 }

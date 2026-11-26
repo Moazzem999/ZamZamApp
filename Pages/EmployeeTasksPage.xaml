@@ -1,0 +1,302 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:models="clr-namespace:ZamZamApp.Models"
+    x:Class="ZamZamApp.Pages.EmployeeTasksPage"
+    Shell.NavBarIsVisible="False"
+    BackgroundColor="{AppThemeBinding Light={StaticResource InputBgLight}, Dark={StaticResource InputBgDark}}">
+
+    <Grid RowDefinitions="Auto,*,Auto" Padding="16,20,16,16" RowSpacing="14">
+
+        <!-- 1. Top Header & Search Card -->
+        <VerticalStackLayout Grid.Row="0" Spacing="12">
+            <!-- Navigation Bar -->
+            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10" VerticalOptions="Center">
+                <Button
+                    Grid.Column="0"
+                    Text="← Back"
+                    FontSize="13"
+                    FontAttributes="Bold"
+                    TextColor="{StaticResource BrandPrimary}"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource CardBgLight}, Dark={StaticResource CardBgDark}}"
+                    BorderColor="{AppThemeBinding Light={StaticResource BorderSubtleLight}, Dark={StaticResource BorderSubtleDark}}"
+                    BorderWidth="1"
+                    CornerRadius="10"
+                    Padding="14,8"
+                    HeightRequest="38"
+                    Clicked="OnBackClicked" />
+
+                <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="1">
+                    <Label
+                        Text="Employee Tasks"
+                        FontSize="18"
+                        FontAttributes="Bold"
+                        TextColor="{AppThemeBinding Light={StaticResource Gray950}, Dark={StaticResource White}}" />
+                    <Label
+                        x:Name="UserSubtitleLabel"
+                        Text="Task Schedule &amp; Assignments"
+                        FontSize="11"
+                        LineBreakMode="TailTruncation"
+                        TextColor="{AppThemeBinding Light={StaticResource TextMutedLight}, Dark={StaticResource TextMutedDark}}" />
+                </VerticalStackLayout>
+
+                <Button
+                    Grid.Column="2"
+                    Text="🔄"
+                    FontSize="14"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource CardBgLight}, Dark={StaticResource CardBgDark}}"
+                    BorderColor="{AppThemeBinding Light={StaticResource BorderSubtleLight}, Dark={StaticResource BorderSubtleDark}}"
+                    BorderWidth="1"
+                    CornerRadius="10"
+                    WidthRequest="42"
+                    HeightRequest="38"
+                    Padding="0"
+                    Clicked="OnRefreshClicked" />
+            </Grid>
+
+            <!-- Search Bar Card -->
+            <Border
+                Stroke="{AppThemeBinding Light={StaticResource BorderSubtleLight}, Dark={StaticResource BorderSubtleDark}}"
+                StrokeShape="RoundRectangle 14"
+                StrokeThickness="1"
+                Padding="10,8"
+                BackgroundColor="{AppThemeBinding Light={StaticResource CardBgLight}, Dark={StaticResource CardBgDark}}">
+                <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8" VerticalOptions="Center">
+                    <Border
+                        Grid.Column="0"
+                        Stroke="{AppThemeBinding Light={StaticResource BorderSubtleLight}, Dark={StaticResource BorderSubtleDark}}"
+                        StrokeShape="RoundRectangle 10"
+                        StrokeThickness="1"
+                        Padding="10,0"
+                        BackgroundColor="{AppThemeBinding Light={StaticResource InputBgLight}, Dark={StaticResource InputBgDark}}">
+                        <Entry
+                            x:Name="SearchEntry"
+                            Placeholder="Search by title, employee..."
+                            ReturnType="Search"
+                            Completed="OnSearchClicked"
+                            ClearButtonVisibility="WhileEditing" />
+                    </Border>
+
+                    <Button
+                        Grid.Column="1"
+                        Text="Search"
+                        FontSize="12"
+                        FontAttributes="Bold"
+                        TextColor="{StaticResource White}"
+                        BackgroundColor="{StaticResource BrandPrimary}"
+                        CornerRadius="10"
+                        Padding="14,0"
+                        HeightRequest="40"
+                        Clicked="OnSearchClicked" />
+
+                    <Button
+                        Grid.Column="2"
+                        Text="Clear"
+                        FontSize="12"
+                        FontAttributes="Bold"
+                        TextColor="{AppThemeBinding Light={StaticResource TextMutedLight}, Dark={StaticResource TextMutedDark}}"
+                        BackgroundColor="Transparent"
+                        BorderColor="{AppThemeBinding Light={StaticResource BorderSubtleLight}, Dark={StaticResource BorderSubtleDark}}"
+                        BorderWidth="1"
+                        CornerRadius="10"
+                        Padding="12,0"
+                        HeightRequest="40"
+                        Clicked="OnClearSearchClicked" />
+                </Grid>
+            </Border>
+        </VerticalStackLayout>
+
+        <!-- 2. Table Grid Card -->
+        <Border
+            Grid.Row="1"
+            Stroke="{AppThemeBinding Light={StaticResource BorderSubtleLight}, Dark={StaticResource BorderSubtleDark}}"
+            StrokeShape="RoundRectangle 16"
+            StrokeThickness="1"
+            BackgroundColor="{AppThemeBinding Light={StaticResource CardBgLight}, Dark={StaticResource CardBgDark}}">
+            <Grid>
+                <ScrollView Orientation="Both">
+                    <VerticalStackLayout MinimumWidthRequest="760">
+                        <!-- Table Header Row -->
+                        <Grid
+                            ColumnDefinitions="60,140,150,180,170,80"
+                            Padding="14,12"
+                            ColumnSpacing="10"
+                            BackgroundColor="{AppThemeBinding Light=#EEF2FF, Dark=#1E1B4B}">
+                            <Label Grid.Column="0" Text="ID" FontSize="12" FontAttributes="Bold" TextColor="{StaticResource BrandPrimary}" VerticalOptions="Center" />
+                            <Label Grid.Column="1" Text="Title" FontSize="12" FontAttributes="Bold" TextColor="{StaticResource BrandPrimary}" VerticalOptions="Center" />
+                            <Label Grid.Column="2" Text="Employee" FontSize="12" FontAttributes="Bold" TextColor="{StaticResource BrandPrimary}" VerticalOptions="Center" />
+                            <Label Grid.Column="3" Text="Description" FontSize="12" FontAttributes="Bold" TextColor="{StaticResource BrandPrimary}" VerticalOptions="Center" />
+                            <Label Grid.Column="4" Text="Scheduled On" FontSize="12" FontAttributes="Bold" TextColor="{StaticResource BrandPrimary}" VerticalOptions="Center" />
+                            <Label Grid.Column="5" Text="Status" FontSize="12" FontAttributes="Bold" TextColor="{StaticResource BrandPrimary}" VerticalOptions="Center" HorizontalTextAlignment="Center" />
+                        </Grid>
+
+                        <BoxView HeightRequest="1" Color="{AppThemeBinding Light={StaticResource BorderSubtleLight}, Dark={StaticResource BorderSubtleDark}}" />
+
+                        <!-- Table Data Rows -->
+                        <VerticalStackLayout x:Name="TasksTableBody">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="models:EmployeeTaskItem">
+                                    <VerticalStackLayout>
+                                        <Grid
+                                            ColumnDefinitions="60,140,150,180,170,80"
+                                            Padding="14,12"
+                                            ColumnSpacing="10">
+                                            <Label
+                                                Grid.Column="0"
+                                                Text="{Binding Id, StringFormat='#{0}'}"
+                                                FontSize="12"
+                                                FontAttributes="Bold"
+                                                TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"
+                                                VerticalOptions="Center" />
+                                            <Label
+                                                Grid.Column="1"
+                                                Text="{Binding Title}"
+                                                FontSize="12"
+                                                FontAttributes="Bold"
+                                                LineBreakMode="TailTruncation"
+                                                TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"
+                                                VerticalOptions="Center" />
+                                            <Label
+                                                Grid.Column="2"
+                                                Text="{Binding EmployeeName}"
+                                                FontSize="12"
+                                                LineBreakMode="TailTruncation"
+                                                TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray300}}"
+                                                VerticalOptions="Center" />
+                                            <Label
+                                                Grid.Column="3"
+                                                Text="{Binding Description}"
+                                                FontSize="12"
+                                                LineBreakMode="TailTruncation"
+                                                TextColor="{AppThemeBinding Light={StaticResource TextMutedLight}, Dark={StaticResource TextMutedDark}}"
+                                                VerticalOptions="Center" />
+                                            <Label
+                                                Grid.Column="4"
+                                                Text="{Binding ScheduledOnDisplay}"
+                                                FontSize="11"
+                                                TextColor="{AppThemeBinding Light={StaticResource TextMutedLight}, Dark={StaticResource TextMutedDark}}"
+                                                VerticalOptions="Center" />
+                                            <Border
+                                                Grid.Column="5"
+                                                StrokeThickness="1"
+                                                Stroke="{StaticResource SuccessGreen}"
+                                                BackgroundColor="{AppThemeBinding Light={StaticResource SuccessGreenBg}, Dark=#064E3B}"
+                                                StrokeShape="RoundRectangle 8"
+                                                Padding="6,3"
+                                                HorizontalOptions="Center"
+                                                VerticalOptions="Center">
+                                                <Label
+                                                    Text="{Binding StatusDisplay}"
+                                                    FontSize="10"
+                                                    FontAttributes="Bold"
+                                                    TextColor="{StaticResource SuccessGreen}" />
+                                            </Border>
+                                        </Grid>
+                                        <BoxView HeightRequest="1" Color="{AppThemeBinding Light={StaticResource BorderSubtleLight}, Dark={StaticResource BorderSubtleDark}}" />
+                                    </VerticalStackLayout>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </ScrollView>
+
+                <!-- Empty / Error State -->
+                <VerticalStackLayout
+                    x:Name="EmptyStateContainer"
+                    IsVisible="False"
+                    VerticalOptions="Center"
+                    HorizontalOptions="Center"
+                    Padding="24"
+                    Spacing="8">
+                    <Label Text="📋" FontSize="32" HorizontalOptions="Center" />
+                    <Label
+                        x:Name="EmptyStateLabel"
+                        Text="No tasks found."
+                        FontSize="14"
+                        FontAttributes="Bold"
+                        HorizontalTextAlignment="Center"
+                        TextColor="{AppThemeBinding Light={StaticResource TextMutedLight}, Dark={StaticResource TextMutedDark}}" />
+                </VerticalStackLayout>
+
+                <!-- Loading Overlay -->
+                <Grid
+                    x:Name="LoadingOverlay"
+                    IsVisible="False"
+                    BackgroundColor="#40000000">
+                    <Border
+                        StrokeThickness="0"
+                        StrokeShape="RoundRectangle 14"
+                        Padding="20"
+                        HorizontalOptions="Center"
+                        VerticalOptions="Center"
+                        BackgroundColor="{AppThemeBinding Light={StaticResource CardBgLight}, Dark={StaticResource CardBgDark}}">
+                        <VerticalStackLayout Spacing="10" HorizontalOptions="Center">
+                            <ActivityIndicator IsRunning="True" Color="{StaticResource BrandPrimary}" />
+                            <Label
+                                Text="Loading tasks..."
+                                FontSize="12"
+                                FontAttributes="Bold"
+                                TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}" />
+                        </VerticalStackLayout>
+                    </Border>
+                </Grid>
+            </Grid>
+        </Border>
+
+        <!-- 3. Pagination Footer -->
+        <Border
+            Grid.Row="2"
+            Stroke="{AppThemeBinding Light={StaticResource BorderSubtleLight}, Dark={StaticResource BorderSubtleDark}}"
+            StrokeShape="RoundRectangle 14"
+            StrokeThickness="1"
+            Padding="12,8"
+            BackgroundColor="{AppThemeBinding Light={StaticResource CardBgLight}, Dark={StaticResource CardBgDark}}">
+            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10" VerticalOptions="Center">
+                <Button
+                    Grid.Column="0"
+                    x:Name="PrevPageButton"
+                    Text="◀ Prev"
+                    FontSize="12"
+                    FontAttributes="Bold"
+                    TextColor="{StaticResource BrandPrimary}"
+                    BackgroundColor="Transparent"
+                    BorderColor="{AppThemeBinding Light={StaticResource BorderSubtleLight}, Dark={StaticResource BorderSubtleDark}}"
+                    BorderWidth="1"
+                    CornerRadius="8"
+                    Padding="12,4"
+                    HeightRequest="34"
+                    IsEnabled="False"
+                    Clicked="OnPrevPageClicked" />
+
+                <Label
+                    Grid.Column="1"
+                    x:Name="PaginationInfoLabel"
+                    Text="Page 1 of 1 (0 total)"
+                    FontSize="12"
+                    FontAttributes="Bold"
+                    HorizontalOptions="Center"
+                    VerticalOptions="Center"
+                    TextColor="{AppThemeBinding Light={StaticResource TextMutedLight}, Dark={StaticResource TextMutedDark}}" />
+
+                <Button
+                    Grid.Column="2"
+                    x:Name="NextPageButton"
+                    Text="Next ▶"
+                    FontSize="12"
+                    FontAttributes="Bold"
+                    TextColor="{StaticResource BrandPrimary}"
+                    BackgroundColor="Transparent"
+                    BorderColor="{AppThemeBinding Light={StaticResource BorderSubtleLight}, Dark={StaticResource BorderSubtleDark}}"
+                    BorderWidth="1"
+                    CornerRadius="8"
+                    Padding="12,4"
+                    HeightRequest="34"
+                    IsEnabled="False"
+                    Clicked="OnNextPageClicked" />
+            </Grid>
+        </Border>
+
+    </Grid>
+
+</ContentPage>
