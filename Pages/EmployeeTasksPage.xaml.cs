@@ -5,13 +5,16 @@ namespace ZamZamApp.Pages
 {
     public partial class EmployeeTasksPage : ContentPage
     {
-        private const int DefaultPageSize = 10;
+        private int _pageSize = 10;
         private int _currentPage = 1;
         private bool _isLoading;
+        private bool _isInitializing = true;
 
         public EmployeeTasksPage()
         {
             InitializeComponent();
+            PageSizePicker.SelectedIndex = 0;
+            _isInitializing = false;
         }
 
         protected override async void OnAppearing()
@@ -42,7 +45,7 @@ namespace ZamZamApp.Pages
                 var (succeeded, message, data) = await EmployeeTaskService.Instance.GetAllAsync(
                     searchTerm: searchTerm,
                     pageNumber: _currentPage,
-                    pageSize: DefaultPageSize);
+                    pageSize: _pageSize);
 
                 if (!succeeded || data == null)
                 {
@@ -124,6 +127,19 @@ namespace ZamZamApp.Pages
         private async void OnNextPageClicked(object? sender, EventArgs e)
         {
             _currentPage++;
+            await LoadTasksAsync();
+        }
+
+        private async void OnPageSizeChanged(object? sender, EventArgs e)
+        {
+            if (_isInitializing || PageSizePicker.SelectedItem is not int selectedSize)
+                return;
+
+            if (selectedSize == _pageSize)
+                return;
+
+            _pageSize = selectedSize;
+            _currentPage = 1;
             await LoadTasksAsync();
         }
 

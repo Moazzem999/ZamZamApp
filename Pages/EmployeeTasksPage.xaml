@@ -114,8 +114,46 @@
             StrokeShape="RoundRectangle 16"
             StrokeThickness="1"
             BackgroundColor="{AppThemeBinding Light={StaticResource CardBgLight}, Dark={StaticResource CardBgDark}}">
-            <Grid>
-                <ScrollView Orientation="Both">
+            <Grid RowDefinitions="Auto,*">
+                <!-- Table Top Toolbar (Page Size) -->
+                <HorizontalStackLayout
+                    Grid.Row="0"
+                    Spacing="8"
+                    Padding="14,10"
+                    HorizontalOptions="End"
+                    VerticalOptions="Center">
+                    <Label
+                        Text="Show:"
+                        FontSize="12"
+                        FontAttributes="Bold"
+                        VerticalOptions="Center"
+                        TextColor="{AppThemeBinding Light={StaticResource TextMutedLight}, Dark={StaticResource TextMutedDark}}" />
+                    <Border
+                        Stroke="{AppThemeBinding Light={StaticResource BorderSubtleLight}, Dark={StaticResource BorderSubtleDark}}"
+                        StrokeShape="RoundRectangle 8"
+                        StrokeThickness="1"
+                        Padding="8,0"
+                        HeightRequest="34"
+                        BackgroundColor="{AppThemeBinding Light={StaticResource InputBgLight}, Dark={StaticResource InputBgDark}}">
+                        <Picker
+                            x:Name="PageSizePicker"
+                            FontSize="12"
+                            WidthRequest="72"
+                            VerticalOptions="Center"
+                            SelectedIndexChanged="OnPageSizeChanged">
+                            <Picker.ItemsSource>
+                                <x:Array Type="{x:Type x:Int32}">
+                                    <x:Int32>10</x:Int32>
+                                    <x:Int32>25</x:Int32>
+                                    <x:Int32>50</x:Int32>
+                                    <x:Int32>100</x:Int32>
+                                </x:Array>
+                            </Picker.ItemsSource>
+                        </Picker>
+                    </Border>
+                </HorizontalStackLayout>
+
+                <ScrollView Grid.Row="1" Orientation="Both">
                     <VerticalStackLayout MinimumWidthRequest="760">
                         <!-- Table Header Row -->
                         <Grid
@@ -203,6 +241,7 @@
 
                 <!-- Empty / Error State -->
                 <VerticalStackLayout
+                    Grid.Row="1"
                     x:Name="EmptyStateContainer"
                     IsVisible="False"
                     VerticalOptions="Center"
@@ -221,6 +260,7 @@
 
                 <!-- Loading Overlay -->
                 <Grid
+                    Grid.RowSpan="2"
                     x:Name="LoadingOverlay"
                     IsVisible="False"
                     BackgroundColor="#40000000">
