@@ -23,69 +23,120 @@
                     <Shadow Brush="#15000000" Offset="0,4" Radius="12" Opacity="0.8" />
                 </Border.Shadow>
 
-                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="16" VerticalOptions="Center">
-                    <!-- Brand Icon Badge with Official Logo -->
+                <VerticalStackLayout Spacing="14">
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="16" VerticalOptions="Center">
+                        <!-- Brand Icon Badge with Official Logo -->
+                        <Border
+                            Grid.Column="0"
+                            WidthRequest="54"
+                            HeightRequest="54"
+                            StrokeShape="RoundRectangle 14"
+                            StrokeThickness="1"
+                            Stroke="{AppThemeBinding Light={StaticResource BorderSubtleLight}, Dark={StaticResource BorderSubtleDark}}"
+                            BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource CardBgDark}}"
+                            Padding="3">
+                            <Image
+                                Source="zamzam_logo.png"
+                                Aspect="AspectFit"
+                                WidthRequest="48"
+                                HeightRequest="48"
+                                HorizontalOptions="Center"
+                                VerticalOptions="Center" />
+                        </Border>
+
+                        <!-- Title & Subtitle -->
+                        <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
+                            <Grid ColumnDefinitions="*,Auto" VerticalOptions="Center">
+                                <Label
+                                    Grid.Column="0"
+                                    Text="ZamZam Tracker"
+                                    FontSize="20"
+                                    FontAttributes="Bold"
+                                    TextColor="{AppThemeBinding Light={StaticResource Gray950}, Dark={StaticResource White}}" />
+
+                                <!-- Status Pill Badge -->
+                                <Border
+                                    Grid.Column="1"
+                                    x:Name="StatusBadgeBorder"
+                                    StrokeThickness="1"
+                                    Stroke="{StaticResource WarningAmber}"
+                                    BackgroundColor="{AppThemeBinding Light={StaticResource WarningAmberBg}, Dark={StaticResource Gray900}}"
+                                    StrokeShape="RoundRectangle 12"
+                                    Padding="8,4">
+                                    <HorizontalStackLayout Spacing="6" VerticalOptions="Center">
+                                        <Ellipse
+                                            x:Name="StatusBadgeDot"
+                                            WidthRequest="7"
+                                            HeightRequest="7"
+                                            Fill="{StaticResource WarningAmber}"
+                                            VerticalOptions="Center" />
+                                        <Label
+                                            x:Name="StatusBadgeText"
+                                            Text="Setup Required"
+                                            FontSize="11"
+                                            FontAttributes="Bold"
+                                            TextColor="{StaticResource WarningAmber}"
+                                            VerticalOptions="Center" />
+                                    </HorizontalStackLayout>
+                                </Border>
+                            </Grid>
+
+                            <Label
+                                Text="Autonomous Background Telemetry Service"
+                                FontSize="12"
+                                TextColor="{AppThemeBinding Light={StaticResource TextMutedLight}, Dark={StaticResource TextMutedDark}}" />
+                        </VerticalStackLayout>
+                    </Grid>
+
+                    <!-- Account & Login Action Bar -->
                     <Border
-                        Grid.Column="0"
-                        WidthRequest="54"
-                        HeightRequest="54"
-                        StrokeShape="RoundRectangle 14"
                         StrokeThickness="1"
                         Stroke="{AppThemeBinding Light={StaticResource BorderSubtleLight}, Dark={StaticResource BorderSubtleDark}}"
-                        BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource CardBgDark}}"
-                        Padding="3">
-                        <Image
-                            Source="zamzam_logo.png"
-                            Aspect="AspectFit"
-                            WidthRequest="48"
-                            HeightRequest="48"
-                            HorizontalOptions="Center"
-                            VerticalOptions="Center" />
-                    </Border>
-
-                    <!-- Title & Subtitle -->
-                    <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
-                        <Grid ColumnDefinitions="*,Auto" VerticalOptions="Center">
+                        StrokeShape="RoundRectangle 12"
+                        Padding="12,8"
+                        BackgroundColor="{AppThemeBinding Light={StaticResource InputBgLight}, Dark={StaticResource InputBgDark}}">
+                        <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8" VerticalOptions="Center">
                             <Label
                                 Grid.Column="0"
-                                Text="ZamZam Tracker"
-                                FontSize="20"
+                                x:Name="AuthStatusLabel"
+                                Text="Not signed in"
+                                FontSize="12"
                                 FontAttributes="Bold"
-                                TextColor="{AppThemeBinding Light={StaticResource Gray950}, Dark={StaticResource White}}" />
+                                VerticalOptions="Center"
+                                LineBreakMode="TailTruncation"
+                                TextColor="{AppThemeBinding Light={StaticResource TextMutedLight}, Dark={StaticResource TextMutedDark}}" />
 
-                            <!-- Status Pill Badge -->
-                            <Border
+                            <Button
                                 Grid.Column="1"
-                                x:Name="StatusBadgeBorder"
-                                StrokeThickness="1"
-                                Stroke="{StaticResource WarningAmber}"
-                                BackgroundColor="{AppThemeBinding Light={StaticResource WarningAmberBg}, Dark={StaticResource Gray900}}"
-                                StrokeShape="RoundRectangle 12"
-                                Padding="8,4">
-                                <HorizontalStackLayout Spacing="6" VerticalOptions="Center">
-                                    <Ellipse
-                                        x:Name="StatusBadgeDot"
-                                        WidthRequest="7"
-                                        HeightRequest="7"
-                                        Fill="{StaticResource WarningAmber}"
-                                        VerticalOptions="Center" />
-                                    <Label
-                                        x:Name="StatusBadgeText"
-                                        Text="Setup Required"
-                                        FontSize="11"
-                                        FontAttributes="Bold"
-                                        TextColor="{StaticResource WarningAmber}"
-                                        VerticalOptions="Center" />
-                                </HorizontalStackLayout>
-                            </Border>
-                        </Grid>
+                                x:Name="LogoutButton"
+                                Text="Logout"
+                                FontSize="12"
+                                FontAttributes="Bold"
+                                TextColor="{StaticResource ErrorRose}"
+                                BackgroundColor="Transparent"
+                                BorderColor="{StaticResource ErrorRose}"
+                                BorderWidth="1"
+                                CornerRadius="8"
+                                Padding="10,4"
+                                HeightRequest="34"
+                                IsVisible="False"
+                                Clicked="OnLogoutClicked" />
 
-                        <Label
-                            Text="Autonomous Background Telemetry Service"
-                            FontSize="12"
-                            TextColor="{AppThemeBinding Light={StaticResource TextMutedLight}, Dark={StaticResource TextMutedDark}}" />
-                    </VerticalStackLayout>
-                </Grid>
+                            <Button
+                                Grid.Column="2"
+                                x:Name="LoginButton"
+                                Text="🔑 Login"
+                                FontSize="12"
+                                FontAttributes="Bold"
+                                TextColor="{StaticResource White}"
+                                BackgroundColor="{StaticResource BrandPrimary}"
+                                CornerRadius="8"
+                                Padding="14,4"
+                                HeightRequest="34"
+                                Clicked="OnLoginClicked" />
+                        </Grid>
+                    </Border>
+                </VerticalStackLayout>
             </Border>
 
             <!-- 2. Live Telemetry & Metrics Card -->

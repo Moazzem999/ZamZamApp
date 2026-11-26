@@ -21,8 +21,10 @@ namespace ZamZamApp
 #endif
             LoadSavedSettings();
             UpdateDashboardUI();
+            UpdateAuthUI();
 
             TrackingManager.Instance.TrackingLogEvent += OnTrackingLogReceived;
+            AuthService.Instance.AuthStateChanged += UpdateAuthUI;
         }
 
         protected override async void OnAppearing()
@@ -30,6 +32,7 @@ namespace ZamZamApp
             base.OnAppearing();
 
             UpdateDashboardUI();
+            UpdateAuthUI();
 
             // Request location and battery permissions on launch
             await TrackingManager.Instance.RequestPermissionsAndBatteryOptimizationAsync();
@@ -435,6 +438,59 @@ namespace ZamZamApp
             StatusMessageLabel.Text = message;
             StatusMessageLabel.TextColor = isError ? Colors.Red : Colors.Green;
             StatusMessageLabel.IsVisible = true;
+        }
+
+        private void UpdateAuthUI()
+        {
+            if (AuthService.Instance.IsLoggedIn)
+            {
+                var user = AuthService.Instance.GetCurrentUser();
+                if (user != null)
+                {
+                    AuthStatusLabel.Text = string.IsNullOrWhiteSpace(user.RoleName)
+                        ? $"👤 {user.Name}"
+                        : $"👤 {user.Name} ({user.RoleName})";
+
+                    if (!Preferences.Default.Get(PrefIsSaved, false) &&
+                        string.IsNullOrWhiteSpace(EmployeeIdEntry.Text) &&
+                        user.EmployeeId > 0)
+                    {
+                        EmployeeIdEntry.Text = user.EmployeeId.ToString();
+                    }
+                }
+                else
+                {
+                    AuthStatusLabel.Text = "👤 Signed in";
+                }
+
+                AuthStatusLabel.TextColor = Color.FromArgb("#10B981");
+                LogoutButton.IsVisible = true;
+                LoginButton.Text = "🔑 Login";
+            }
+            else
+            {
+                AuthStatusLabel.Text = "Not signed in";
+                AuthStatusLabel.SetAppThemeColor(
+                    Label.TextColorProperty,
+                    Color.FromArgb("#64748B"),
+                    Color.FromArgb("#94A3B8"));
+                LogoutButton.IsVisible = false;
+                LoginButton.Text = "🔑 Login";
+            }
+        }
+
+        private async void OnLoginClicked(object? sender, EventArgs e)
+        {
+            await Shell.Current.GoToAsync(nameof(Pages.LoginPage));
+        }
+
+        private async void OnLogoutClicked(object? sender, EventArgs e)
+        {
+            bool confirm = await DisplayAlertAsync("Logout", "Are you sure you want to sign out?", "Yes, Logout", "Cancel");
+            if (!confirm)
+                return;
+
+            AuthService.Instance.Logout();
         }
     }
 }

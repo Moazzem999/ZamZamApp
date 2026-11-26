@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="ZamZamApp.Pages.LoginPage"
+    Shell.NavBarIsVisible="False"
+    BackgroundColor="{AppThemeBinding Light={StaticResource InputBgLight}, Dark={StaticResource InputBgDark}}">
+
+    <ScrollView>
+        <VerticalStackLayout
+            Padding="20,24,20,36"
+            Spacing="20"
+            MaximumWidthRequest="480"
+            HorizontalOptions="Center">
+
+            <!-- Top Bar with Back Button -->
+            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12" VerticalOptions="Center">
+                <Button
+                    Grid.Column="0"
+                    Text="← Back"
+                    FontSize="13"
+                    FontAttributes="Bold"
+                    TextColor="{StaticResource BrandPrimary}"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource CardBgLight}, Dark={StaticResource CardBgDark}}"
+                    BorderColor="{AppThemeBinding Light={StaticResource BorderSubtleLight}, Dark={StaticResource BorderSubtleDark}}"
+                    BorderWidth="1"
+                    CornerRadius="10"
+                    Padding="14,8"
+                    HeightRequest="38"
+                    Clicked="OnBackClicked" />
+
+                <Label
+                    Grid.Column="1"
+                    Text="Account Authentication"
+                    FontSize="14"
+                    FontAttributes="Bold"
+                    VerticalOptions="Center"
+                    HorizontalOptions="End"
+                    TextColor="{AppThemeBinding Light={StaticResource TextMutedLight}, Dark={StaticResource TextMutedDark}}" />
+            </Grid>
+
+            <!-- Brand Header Card -->
+            <Border
+                StrokeThickness="0"
+                BackgroundColor="{AppThemeBinding Light={StaticResource CardBgLight}, Dark={StaticResource CardBgDark}}"
+                StrokeShape="RoundRectangle 20"
+                Padding="22,20">
+                <Border.Shadow>
+                    <Shadow Brush="#15000000" Offset="0,4" Radius="12" Opacity="0.8" />
+                </Border.Shadow>
+
+                <HorizontalStackLayout Spacing="16" VerticalOptions="Center">
+                    <Border
+                        WidthRequest="54"
+                        HeightRequest="54"
+                        StrokeShape="RoundRectangle 14"
+                        StrokeThickness="1"
+                        Stroke="{AppThemeBinding Light={StaticResource BorderSubtleLight}, Dark={StaticResource BorderSubtleDark}}"
+                        BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource CardBgDark}}"
+                        Padding="3">
+                        <Image
+                            Source="zamzam_logo.png"
+                            Aspect="AspectFit"
+                            WidthRequest="48"
+                            HeightRequest="48"
+                            HorizontalOptions="Center"
+                            VerticalOptions="Center" />
+                    </Border>
+
+                    <VerticalStackLayout VerticalOptions="Center" Spacing="2">
+                        <Label
+                            Text="Sign In to ZamZam"
+                            FontSize="20"
+                            FontAttributes="Bold"
+                            TextColor="{AppThemeBinding Light={StaticResource Gray950}, Dark={StaticResource White}}" />
+                        <Label
+                            Text="Enter your employee credentials to continue"
+                            FontSize="12"
+                            TextColor="{AppThemeBinding Light={StaticResource TextMutedLight}, Dark={StaticResource TextMutedDark}}" />
+                    </VerticalStackLayout>
+                </HorizontalStackLayout>
+            </Border>
+
+            <!-- Login Form Card -->
+            <Border
+                Stroke="{AppThemeBinding Light={StaticResource BorderSubtleLight}, Dark={StaticResource BorderSubtleDark}}"
+                StrokeShape="RoundRectangle 18"
+                StrokeThickness="1"
+                Padding="22"
+                BackgroundColor="{AppThemeBinding Light={StaticResource CardBgLight}, Dark={StaticResource CardBgDark}}">
+                <Border.Shadow>
+                    <Shadow Brush="#10000000" Offset="0,4" Radius="10" Opacity="0.6" />
+                </Border.Shadow>
+
+                <VerticalStackLayout Spacing="18">
+
+                    <!-- Email Field -->
+                    <VerticalStackLayout Spacing="6">
+                        <HorizontalStackLayout Spacing="6">
+                            <Label Text="✉️" FontSize="13" VerticalOptions="Center" />
+                            <Label
+                                Text="Email Address"
+                                FontSize="13"
+                                FontAttributes="Bold"
+                                TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}" />
+                        </HorizontalStackLayout>
+                        <Border
+                            Stroke="{AppThemeBinding Light={StaticResource BorderSubtleLight}, Dark={StaticResource BorderSubtleDark}}"
+                            StrokeShape="RoundRectangle 10"
+                            StrokeThickness="1"
+                            Padding="14,2"
+                            BackgroundColor="{AppThemeBinding Light={StaticResource InputBgLight}, Dark={StaticResource InputBgDark}}">
+                            <Entry
+                                x:Name="EmailEntry"
+                                Placeholder="e.g. Mahfuz@gmail.com"
+                                Keyboard="Email"
+                                ReturnType="Next"
+                                ClearButtonVisibility="WhileEditing" />
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <!-- Password Field -->
+                    <VerticalStackLayout Spacing="6">
+                        <HorizontalStackLayout Spacing="6">
+                            <Label Text="🔒" FontSize="13" VerticalOptions="Center" />
+                            <Label
+                                Text="Password"
+                                FontSize="13"
+                                FontAttributes="Bold"
+                                TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}" />
+                        </HorizontalStackLayout>
+                        <Border
+                            Stroke="{AppThemeBinding Light={StaticResource BorderSubtleLight}, Dark={StaticResource BorderSubtleDark}}"
+                            StrokeShape="RoundRectangle 10"
+                            StrokeThickness="1"
+                            Padding="14,2,6,2"
+                            BackgroundColor="{AppThemeBinding Light={StaticResource InputBgLight}, Dark={StaticResource InputBgDark}}">
+                            <Grid ColumnDefinitions="*,Auto" VerticalOptions="Center">
+                                <Entry
+                                    Grid.Column="0"
+                                    x:Name="PasswordEntry"
+                                    Placeholder="Enter your password"
+                                    IsPassword="True"
+                                    ReturnType="Done"
+                                    Completed="OnLoginClicked" />
+                                <Button
+                                    Grid.Column="1"
+                                    x:Name="TogglePasswordButton"
+                                    Text="Show"
+                                    FontSize="11"
+                                    FontAttributes="Bold"
+                                    TextColor="{StaticResource BrandPrimary}"
+                                    BackgroundColor="Transparent"
+                                    Padding="8,4"
+                                    HeightRequest="34"
+                                    Clicked="OnTogglePasswordClicked" />
+                            </Grid>
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <!-- Base URL Info Pill -->
+                    <Border
+                        StrokeThickness="1"
+                        Stroke="{AppThemeBinding Light={StaticResource BorderSubtleLight}, Dark={StaticResource BorderSubtleDark}}"
+                        StrokeShape="RoundRectangle 10"
+                        Padding="12,8"
+                        BackgroundColor="{AppThemeBinding Light={StaticResource InputBgLight}, Dark={StaticResource InputBgDark}}">
+                        <Label
+                            x:Name="ApiEndpointLabel"
+                            FontSize="11"
+                            TextColor="{AppThemeBinding Light={StaticResource TextMutedLight}, Dark={StaticResource TextMutedDark}}"
+                            LineBreakMode="TailTruncation" />
+                    </Border>
+
+                    <!-- Status Message -->
+                    <Label
+                        x:Name="StatusLabel"
+                        FontSize="12"
+                        FontAttributes="Bold"
+                        HorizontalOptions="Center"
+                        HorizontalTextAlignment="Center"
+                        IsVisible="False" />
+
+                    <!-- Login Submit Button -->
+                    <Button
+                        x:Name="LoginSubmitButton"
+                        Text="🔑 Sign In"
+                        FontSize="15"
+                        FontAttributes="Bold"
+                        HeightRequest="52"
+                        CornerRadius="12"
+                        BackgroundColor="{StaticResource BrandPrimary}"
+                        TextColor="{StaticResource White}"
+                        Clicked="OnLoginClicked"
+                        Margin="0,4,0,0">
+                        <Button.Shadow>
+                            <Shadow Brush="#304F46E5" Offset="0,4" Radius="8" Opacity="0.8" />
+                        </Button.Shadow>
+                    </Button>
+
+                </VerticalStackLayout>
+            </Border>
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

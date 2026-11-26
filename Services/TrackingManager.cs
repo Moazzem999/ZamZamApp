@@ -225,8 +225,16 @@ namespace ZamZamApp.Services
 
             try
             {
-                using var content = new StringContent(json, Encoding.UTF8, "application/json");
-                var response = await _httpClient.PostAsync(apiUrl, content);
+                using var request = new HttpRequestMessage(HttpMethod.Post, apiUrl);
+                request.Content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                string token = AuthService.Instance.GetToken();
+                if (!string.IsNullOrWhiteSpace(token))
+                {
+                    request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+                }
+
+                var response = await _httpClient.SendAsync(request);
                 string responseBody = await response.Content.ReadAsStringAsync();
 
                 int statusCode = (int)response.StatusCode;
