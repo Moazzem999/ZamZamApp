@@ -126,5 +126,21 @@ namespace ZamZamApp.Pages
             _currentPage++;
             await LoadTasksAsync();
         }
+
+        private async void OnPreviewTaskClicked(object? sender, EventArgs e)
+        {
+            if (sender is not Button button || button.CommandParameter is not EmployeeTaskItem task)
+                return;
+
+            string details =
+                $"Task ID: #{task.Id}\n" +
+                $"Title: {task.Title}\n" +
+                $"Employee: {task.EmployeeName} (ID: {task.EmployeeId})\n" +
+                $"Scheduled: {task.ScheduledOnDisplay}\n" +
+                $"Status: {task.StatusDisplay}\n" +
+                $"Description:\n{(string.IsNullOrWhiteSpace(task.Description) ? "-" : task.Description)}";
+
+            await DisplayAlertAsync("Task Preview", details, "Close");
+        }
     }
 }

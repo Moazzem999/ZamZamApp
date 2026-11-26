@@ -128,7 +128,7 @@
                             <Label Grid.Column="2" Text="Employee" FontSize="12" FontAttributes="Bold" TextColor="{StaticResource BrandPrimary}" VerticalOptions="Center" />
                             <Label Grid.Column="3" Text="Description" FontSize="12" FontAttributes="Bold" TextColor="{StaticResource BrandPrimary}" VerticalOptions="Center" />
                             <Label Grid.Column="4" Text="Scheduled On" FontSize="12" FontAttributes="Bold" TextColor="{StaticResource BrandPrimary}" VerticalOptions="Center" />
-                            <Label Grid.Column="5" Text="Status" FontSize="12" FontAttributes="Bold" TextColor="{StaticResource BrandPrimary}" VerticalOptions="Center" HorizontalTextAlignment="Center" />
+                            <Label Grid.Column="5" Text="Action" FontSize="12" FontAttributes="Bold" TextColor="{StaticResource BrandPrimary}" VerticalOptions="Center" HorizontalTextAlignment="Center" />
                         </Grid>
 
                         <BoxView HeightRequest="1" Color="{AppThemeBinding Light={StaticResource BorderSubtleLight}, Dark={StaticResource BorderSubtleDark}}" />
@@ -177,21 +177,21 @@
                                                 FontSize="11"
                                                 TextColor="{AppThemeBinding Light={StaticResource TextMutedLight}, Dark={StaticResource TextMutedDark}}"
                                                 VerticalOptions="Center" />
-                                            <Border
+                                            <Button
                                                 Grid.Column="5"
-                                                StrokeThickness="1"
-                                                Stroke="{StaticResource SuccessGreen}"
-                                                BackgroundColor="{AppThemeBinding Light={StaticResource SuccessGreenBg}, Dark=#064E3B}"
-                                                StrokeShape="RoundRectangle 8"
-                                                Padding="6,3"
+                                                Text="👁️"
+                                                FontSize="15"
+                                                BackgroundColor="{AppThemeBinding Light=#EEF2FF, Dark=#1E1B4B}"
+                                                BorderColor="{StaticResource BrandPrimary}"
+                                                BorderWidth="1"
+                                                CornerRadius="8"
+                                                WidthRequest="38"
+                                                HeightRequest="34"
+                                                Padding="0"
                                                 HorizontalOptions="Center"
-                                                VerticalOptions="Center">
-                                                <Label
-                                                    Text="{Binding StatusDisplay}"
-                                                    FontSize="10"
-                                                    FontAttributes="Bold"
-                                                    TextColor="{StaticResource SuccessGreen}" />
-                                            </Border>
+                                                VerticalOptions="Center"
+                                                CommandParameter="{Binding .}"
+                                                Clicked="OnPreviewTaskClicked" />
                                         </Grid>
                                         <BoxView HeightRequest="1" Color="{AppThemeBinding Light={StaticResource BorderSubtleLight}, Dark={StaticResource BorderSubtleDark}}" />
                                     </VerticalStackLayout>
