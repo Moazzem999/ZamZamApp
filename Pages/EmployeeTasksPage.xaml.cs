@@ -8,6 +8,7 @@ namespace ZamZamApp.Pages
         private int _pageSize = 10;
         private int _currentPage = 1;
         private bool _isLoading;
+        private bool _isCreating;
         private bool _isInitializing = true;
 
         public EmployeeTasksPage()
@@ -209,6 +210,106 @@ namespace ZamZamApp.Pages
                 string.IsNullOrWhiteSpace(message) ? "Employee task successfully deleted." : message,
                 "OK");
             await LoadTasksAsync();
+        }
+
+        private void OnCreateTaskClicked(object? sender, EventArgs e)
+        {
+            CreateTitleEntry.Text = string.Empty;
+            CreateDescriptionEditor.Text = string.Empty;
+            CreateScheduledDatePicker.Date = DateTime.Today;
+            CreateScheduledTimePicker.Time = DateTime.Now.TimeOfDay;
+            CreateFormErrorLabel.Text = string.Empty;
+            CreateFormErrorLabel.IsVisible = false;
+            CreateTaskOverlay.IsVisible = true;
+            CreateTitleEntry.Focus();
+        }
+
+        private void OnCancelCreateTaskClicked(object? sender, EventArgs e)
+        {
+            if (_isCreating)
+                return;
+
+            CreateTaskOverlay.IsVisible = false;
+        }
+
+        private async void OnSubmitCreateTaskClicked(object? sender, EventArgs e)
+        {
+            if (_isCreating)
+                return;
+
+            string title = CreateTitleEntry.Text?.Trim() ?? string.Empty;
+            if (string.IsNullOrWhiteSpace(title))
+            {
+                CreateFormErrorLabel.Text = "Please enter a task title.";
+                CreateFormErrorLabel.IsVisible = true;
+                CreateTitleEntry.Focus();
+                return;
+            }
+
+            CreateFormErrorLabel.IsVisible = false;
+            DateTime scheduledDate = CreateScheduledDatePicker.Date ?? DateTime.Today;
+            TimeSpan scheduledTime = CreateScheduledTimePicker.Time ?? TimeSpan.Zero;
+            DateTime localScheduledOn = scheduledDate.Date.Add(scheduledTime);
+
+            var payload = new EmployeeTaskCreateRequest
+            {
+                Id = 0,
+                Title = title,
+                Description = CreateDescriptionEditor.Text?.Trim() ?? string.Empty,
+                ScheduledOn = DateTime.SpecifyKind(localScheduledOn, DateTimeKind.Local).ToUniversalTime()
+            };
+
+            SetCreateLoading(true);
+            bool succeeded = false;
+            string message = string.Empty;
+
+            try
+            {
+                (succeeded, message, _) = await EmployeeTaskService.Instance.CreateAsync(payload);
+            }
+            catch (Exception ex)
+            {
+                message = ex.Message;
+            }
+            finally
+            {
+                SetCreateLoading(false);
+            }
+
+            if (!succeeded)
+            {
+                if (!AuthService.Instance.IsLoggedIn)
+                {
+                    CreateTaskOverlay.IsVisible = false;
+                    return;
+                }
+
+                CreateFormErrorLabel.Text = string.IsNullOrWhiteSpace(message)
+                    ? "Failed to create employee task."
+                    : message;
+                CreateFormErrorLabel.IsVisible = true;
+                return;
+            }
+
+            CreateTaskOverlay.IsVisible = false;
+            await DisplayAlertAsync(
+                "Created",
+                string.IsNullOrWhiteSpace(message) ? "Employee task successfully created." : message,
+                "OK");
+            _currentPage = 1;
+            await LoadTasksAsync();
+        }
+
+        private void SetCreateLoading(bool isLoading)
+        {
+            _isCreating = isLoading;
+            CreateSubmitButton.IsEnabled = !isLoading;
+            CreateCancelButton.IsEnabled = !isLoading;
+            CreateTitleEntry.IsEnabled = !isLoading;
+            CreateDescriptionEditor.IsEnabled = !isLoading;
+            CreateScheduledDatePicker.IsEnabled = !isLoading;
+            CreateScheduledTimePicker.IsEnabled = !isLoading;
+            CreateSubmitButton.Text = isLoading ? "Saving..." : "Save Task";
         }
     }
 }

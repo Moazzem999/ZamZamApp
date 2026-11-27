@@ -32,6 +32,36 @@ namespace ZamZamApp.Models
         public bool Data { get; set; }
     }
 
+    public class EmployeeTaskCreateRequest
+    {
+        [JsonPropertyName("id")]
+        public long Id { get; set; }
+
+        [JsonPropertyName("title")]
+        public string Title { get; set; } = string.Empty;
+
+        [JsonPropertyName("description")]
+        public string Description { get; set; } = string.Empty;
+
+        [JsonPropertyName("scheduledOn")]
+        public DateTime ScheduledOn { get; set; }
+    }
+
+    public class EmployeeTaskCreateResponse
+    {
+        [JsonPropertyName("message")]
+        public string Message { get; set; } = string.Empty;
+
+        [JsonPropertyName("succeeded")]
+        public bool Succeeded { get; set; }
+
+        [JsonPropertyName("statusCode")]
+        public int StatusCode { get; set; }
+
+        [JsonPropertyName("data")]
+        public long Data { get; set; }
+    }
+
     public class EmployeeTaskPagedData
     {
         [JsonPropertyName("items")]

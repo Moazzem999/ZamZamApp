@@ -115,43 +115,59 @@
             StrokeThickness="1"
             BackgroundColor="{AppThemeBinding Light={StaticResource CardBgLight}, Dark={StaticResource CardBgDark}}">
             <Grid RowDefinitions="Auto,*">
-                <!-- Table Top Toolbar (Page Size) -->
-                <HorizontalStackLayout
+                <!-- Table Top Toolbar (+ Create & Page Size) -->
+                <Grid
                     Grid.Row="0"
-                    Spacing="8"
+                    ColumnDefinitions="Auto,*,Auto"
                     Padding="14,10"
-                    HorizontalOptions="End"
                     VerticalOptions="Center">
-                    <Label
-                        Text="Show:"
+                    <Button
+                        Grid.Column="0"
+                        Text="+ Create"
                         FontSize="12"
                         FontAttributes="Bold"
-                        VerticalOptions="Center"
-                        TextColor="{AppThemeBinding Light={StaticResource TextMutedLight}, Dark={StaticResource TextMutedDark}}" />
-                    <Border
-                        Stroke="{AppThemeBinding Light={StaticResource BorderSubtleLight}, Dark={StaticResource BorderSubtleDark}}"
-                        StrokeShape="RoundRectangle 8"
-                        StrokeThickness="1"
-                        Padding="8,0"
+                        TextColor="{StaticResource White}"
+                        BackgroundColor="{StaticResource BrandPrimary}"
+                        CornerRadius="8"
+                        Padding="14,0"
                         HeightRequest="34"
-                        BackgroundColor="{AppThemeBinding Light={StaticResource InputBgLight}, Dark={StaticResource InputBgDark}}">
-                        <Picker
-                            x:Name="PageSizePicker"
+                        Clicked="OnCreateTaskClicked" />
+
+                    <HorizontalStackLayout
+                        Grid.Column="2"
+                        Spacing="8"
+                        VerticalOptions="Center">
+                        <Label
+                            Text="Show:"
                             FontSize="12"
-                            WidthRequest="72"
+                            FontAttributes="Bold"
                             VerticalOptions="Center"
-                            SelectedIndexChanged="OnPageSizeChanged">
-                            <Picker.ItemsSource>
-                                <x:Array Type="{x:Type x:Int32}">
-                                    <x:Int32>10</x:Int32>
-                                    <x:Int32>25</x:Int32>
-                                    <x:Int32>50</x:Int32>
-                                    <x:Int32>100</x:Int32>
-                                </x:Array>
-                            </Picker.ItemsSource>
-                        </Picker>
-                    </Border>
-                </HorizontalStackLayout>
+                            TextColor="{AppThemeBinding Light={StaticResource TextMutedLight}, Dark={StaticResource TextMutedDark}}" />
+                        <Border
+                            Stroke="{AppThemeBinding Light={StaticResource BorderSubtleLight}, Dark={StaticResource BorderSubtleDark}}"
+                            StrokeShape="RoundRectangle 8"
+                            StrokeThickness="1"
+                            Padding="8,0"
+                            HeightRequest="34"
+                            BackgroundColor="{AppThemeBinding Light={StaticResource InputBgLight}, Dark={StaticResource InputBgDark}}">
+                            <Picker
+                                x:Name="PageSizePicker"
+                                FontSize="12"
+                                WidthRequest="72"
+                                VerticalOptions="Center"
+                                SelectedIndexChanged="OnPageSizeChanged">
+                                <Picker.ItemsSource>
+                                    <x:Array Type="{x:Type x:Int32}">
+                                        <x:Int32>10</x:Int32>
+                                        <x:Int32>25</x:Int32>
+                                        <x:Int32>50</x:Int32>
+                                        <x:Int32>100</x:Int32>
+                                    </x:Array>
+                                </Picker.ItemsSource>
+                            </Picker>
+                        </Border>
+                    </HorizontalStackLayout>
+                </Grid>
 
                 <ScrollView Grid.Row="1" Orientation="Both">
                     <VerticalStackLayout MinimumWidthRequest="784">
@@ -351,6 +367,154 @@
                     Clicked="OnNextPageClicked" />
             </Grid>
         </Border>
+
+        <!-- 4. Create Task Popup Overlay -->
+        <Grid
+            Grid.RowSpan="3"
+            x:Name="CreateTaskOverlay"
+            IsVisible="False"
+            BackgroundColor="#80000000"
+            Margin="-16,-20,-16,-16"
+            Padding="16">
+            <Border
+                Stroke="{AppThemeBinding Light={StaticResource BorderSubtleLight}, Dark={StaticResource BorderSubtleDark}}"
+                StrokeShape="RoundRectangle 16"
+                StrokeThickness="1"
+                Padding="18"
+                MaximumWidthRequest="420"
+                HorizontalOptions="Fill"
+                VerticalOptions="Center"
+                BackgroundColor="{AppThemeBinding Light={StaticResource CardBgLight}, Dark={StaticResource CardBgDark}}">
+                <ScrollView MaximumHeightRequest="560">
+                    <VerticalStackLayout Spacing="12">
+                        <Grid ColumnDefinitions="*,Auto" VerticalOptions="Center">
+                            <Label
+                                Grid.Column="0"
+                                Text="Create Employee Task"
+                                FontSize="17"
+                                FontAttributes="Bold"
+                                VerticalOptions="Center"
+                                TextColor="{AppThemeBinding Light={StaticResource Gray950}, Dark={StaticResource White}}" />
+                            <Button
+                                Grid.Column="1"
+                                Text="✕"
+                                FontSize="14"
+                                TextColor="{AppThemeBinding Light={StaticResource TextMutedLight}, Dark={StaticResource TextMutedDark}}"
+                                BackgroundColor="Transparent"
+                                WidthRequest="34"
+                                HeightRequest="34"
+                                Padding="0"
+                                Clicked="OnCancelCreateTaskClicked" />
+                        </Grid>
+
+                        <VerticalStackLayout Spacing="4">
+                            <Label
+                                Text="Title *"
+                                FontSize="12"
+                                FontAttributes="Bold"
+                                TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray200}}" />
+                            <Border
+                                Stroke="{AppThemeBinding Light={StaticResource BorderSubtleLight}, Dark={StaticResource BorderSubtleDark}}"
+                                StrokeShape="RoundRectangle 10"
+                                StrokeThickness="1"
+                                Padding="10,2"
+                                BackgroundColor="{AppThemeBinding Light={StaticResource InputBgLight}, Dark={StaticResource InputBgDark}}">
+                                <Entry
+                                    x:Name="CreateTitleEntry"
+                                    Placeholder="Enter task title"
+                                    FontSize="13" />
+                            </Border>
+                        </VerticalStackLayout>
+
+                        <VerticalStackLayout Spacing="4">
+                            <Label
+                                Text="Description"
+                                FontSize="12"
+                                FontAttributes="Bold"
+                                TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray200}}" />
+                            <Border
+                                Stroke="{AppThemeBinding Light={StaticResource BorderSubtleLight}, Dark={StaticResource BorderSubtleDark}}"
+                                StrokeShape="RoundRectangle 10"
+                                StrokeThickness="1"
+                                Padding="10,4"
+                                BackgroundColor="{AppThemeBinding Light={StaticResource InputBgLight}, Dark={StaticResource InputBgDark}}">
+                                <Editor
+                                    x:Name="CreateDescriptionEditor"
+                                    Placeholder="Enter task description"
+                                    FontSize="13"
+                                    HeightRequest="90"
+                                    AutoSize="TextChanges" />
+                            </Border>
+                        </VerticalStackLayout>
+
+                        <VerticalStackLayout Spacing="4">
+                            <Label
+                                Text="Scheduled On"
+                                FontSize="12"
+                                FontAttributes="Bold"
+                                TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray200}}" />
+                            <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                                <Border
+                                    Grid.Column="0"
+                                    Stroke="{AppThemeBinding Light={StaticResource BorderSubtleLight}, Dark={StaticResource BorderSubtleDark}}"
+                                    StrokeShape="RoundRectangle 10"
+                                    StrokeThickness="1"
+                                    Padding="10,2"
+                                    BackgroundColor="{AppThemeBinding Light={StaticResource InputBgLight}, Dark={StaticResource InputBgDark}}">
+                                    <DatePicker
+                                        x:Name="CreateScheduledDatePicker"
+                                        FontSize="13" />
+                                </Border>
+                                <Border
+                                    Grid.Column="1"
+                                    Stroke="{AppThemeBinding Light={StaticResource BorderSubtleLight}, Dark={StaticResource BorderSubtleDark}}"
+                                    StrokeShape="RoundRectangle 10"
+                                    StrokeThickness="1"
+                                    Padding="10,2"
+                                    BackgroundColor="{AppThemeBinding Light={StaticResource InputBgLight}, Dark={StaticResource InputBgDark}}">
+                                    <TimePicker
+                                        x:Name="CreateScheduledTimePicker"
+                                        FontSize="13" />
+                                </Border>
+                            </Grid>
+                        </VerticalStackLayout>
+
+                        <Label
+                            x:Name="CreateFormErrorLabel"
+                            IsVisible="False"
+                            FontSize="12"
+                            TextColor="{StaticResource ErrorRose}" />
+
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="10" Margin="0,4,0,0">
+                            <Button
+                                Grid.Column="0"
+                                x:Name="CreateCancelButton"
+                                Text="Cancel"
+                                FontSize="13"
+                                FontAttributes="Bold"
+                                TextColor="{AppThemeBinding Light={StaticResource TextMutedLight}, Dark={StaticResource TextMutedDark}}"
+                                BackgroundColor="Transparent"
+                                BorderColor="{AppThemeBinding Light={StaticResource BorderSubtleLight}, Dark={StaticResource BorderSubtleDark}}"
+                                BorderWidth="1"
+                                CornerRadius="10"
+                                HeightRequest="40"
+                                Clicked="OnCancelCreateTaskClicked" />
+                            <Button
+                                Grid.Column="1"
+                                x:Name="CreateSubmitButton"
+                                Text="Save Task"
+                                FontSize="13"
+                                FontAttributes="Bold"
+                                TextColor="{StaticResource White}"
+                                BackgroundColor="{StaticResource BrandPrimary}"
+                                CornerRadius="10"
+                                HeightRequest="40"
+                                Clicked="OnSubmitCreateTaskClicked" />
+                        </Grid>
+                    </VerticalStackLayout>
+                </ScrollView>
+            </Border>
+        </Grid>
 
     </Grid>
 

@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Net;
 using System.Net.Http.Headers;
+using System.Text;
 using System.Text.Json;
 using ZamZamApp.Models;
 
@@ -98,6 +99,69 @@ namespace ZamZamApp.Services
             {
                 Debug.WriteLine($"[EmployeeTaskService] Error: {ex.Message}");
                 return (false, ex.Message, null);
+            }
+        }
+
+        public async Task<(bool Succeeded, string Message, long CreatedId)> CreateAsync(EmployeeTaskCreateRequest payload)
+        {
+            try
+            {
+                using var request = CreateAuthorizedRequest(HttpMethod.Post, AppSettings.EmployeeTaskCreateEndpoint);
+                string json = JsonSerializer.Serialize(payload, JsonOptions);
+                request.Content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                var response = await _httpClient.SendAsync(request);
+                if (response.StatusCode == HttpStatusCode.Unauthorized)
+                {
+                    AuthService.Instance.HandleUnauthorized();
+                    return (false, "Session expired. Please sign in again.", 0);
+                }
+
+                string responseBody = await response.Content.ReadAsStringAsync();
+
+                if (string.IsNullOrWhiteSpace(responseBody))
+                {
+                    return (false, $"Server returned empty response (HTTP {(int)response.StatusCode}).", 0);
+                }
+
+                EmployeeTaskCreateResponse? createResponse = null;
+                try
+                {
+                    createResponse = JsonSerializer.Deserialize<EmployeeTaskCreateResponse>(responseBody, JsonOptions);
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"[EmployeeTaskService] Create JSON parse error: {ex.Message}");
+                }
+
+                if (createResponse == null)
+                {
+                    return (false, $"Unexpected server response (HTTP {(int)response.StatusCode}).", 0);
+                }
+
+                if (createResponse.StatusCode == 401)
+                {
+                    AuthService.Instance.HandleUnauthorized();
+                    return (false, "Session expired. Please sign in again.", 0);
+                }
+
+                if (!createResponse.Succeeded)
+                {
+                    string errorMessage = !string.IsNullOrWhiteSpace(createResponse.Message)
+                        ? createResponse.Message
+                        : $"Failed to create task (Status {createResponse.StatusCode}).";
+                    return (false, errorMessage, 0);
+                }
+
+                string successMessage = !string.IsNullOrWhiteSpace(createResponse.Message)
+                    ? createResponse.Message
+                    : "Employee task successfully created.";
+                return (true, successMessage, createResponse.Data);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[EmployeeTaskService] Create error: {ex.Message}");
+                return (false, ex.Message, 0);
             }
         }
 

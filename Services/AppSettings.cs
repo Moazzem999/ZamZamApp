@@ -21,6 +21,7 @@ namespace ZamZamApp.Services
 
         public static string LoginEndpoint => $"{BaseUrl}/api/Auth/Login";
         public static string EmployeeTaskGetAllEndpoint => $"{BaseUrl}/api/EmployeeTask/GetAll";
+        public static string EmployeeTaskCreateEndpoint => $"{BaseUrl}/api/EmployeeTask";
         public static string EmployeeTaskDeleteEndpoint(long id) => $"{BaseUrl}/api/EmployeeTask/{id}";
     }
 }
