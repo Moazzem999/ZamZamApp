@@ -241,7 +241,7 @@ namespace ZamZamApp.Pages
 
             DateTime localScheduled = task.ScheduledOn == default
                 ? DateTime.Now
-                : (task.ScheduledOn.Kind == DateTimeKind.Utc ? task.ScheduledOn.ToLocalTime() : task.ScheduledOn);
+                : task.ScheduledOn;
 
             CreateScheduledDatePicker.Date = localScheduled.Date;
             CreateScheduledTimePicker.Time = localScheduled.TimeOfDay;
@@ -284,7 +284,7 @@ namespace ZamZamApp.Pages
                 Id = _editingTaskId ?? 0,
                 Title = title,
                 Description = CreateDescriptionEditor.Text?.Trim() ?? string.Empty,
-                ScheduledOn = DateTime.SpecifyKind(localScheduledOn, DateTimeKind.Local).ToUniversalTime()
+                ScheduledOn = DateTime.SpecifyKind(localScheduledOn, DateTimeKind.Utc)
             };
 
             SetCreateLoading(true, isEdit);
