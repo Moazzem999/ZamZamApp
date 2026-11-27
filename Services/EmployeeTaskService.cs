@@ -104,9 +104,44 @@ namespace ZamZamApp.Services
 
         public async Task<(bool Succeeded, string Message, long CreatedId)> CreateAsync(EmployeeTaskCreateRequest payload)
         {
+            var (succeeded, message, data) = await SendTaskMutationAsync(
+                HttpMethod.Post,
+                AppSettings.EmployeeTaskCreateEndpoint,
+                payload,
+                "Employee task successfully created.",
+                "Failed to create task");
+
+            long createdId = 0;
+            if (succeeded && data.HasValue && data.Value.ValueKind == JsonValueKind.Number)
+            {
+                data.Value.TryGetInt64(out createdId);
+            }
+
+            return (succeeded, message, createdId);
+        }
+
+        public async Task<(bool Succeeded, string Message)> UpdateAsync(EmployeeTaskCreateRequest payload)
+        {
+            var (succeeded, message, _) = await SendTaskMutationAsync(
+                HttpMethod.Put,
+                AppSettings.EmployeeTaskUpdateEndpoint,
+                payload,
+                "Employee task successfully updated.",
+                "Failed to update task");
+
+            return (succeeded, message);
+        }
+
+        private async Task<(bool Succeeded, string Message, JsonElement? Data)> SendTaskMutationAsync(
+            HttpMethod method,
+            string url,
+            EmployeeTaskCreateRequest payload,
+            string defaultSuccessMessage,
+            string defaultErrorPrefix)
+        {
             try
             {
-                using var request = CreateAuthorizedRequest(HttpMethod.Post, AppSettings.EmployeeTaskCreateEndpoint);
+                using var request = CreateAuthorizedRequest(method, url);
                 string json = JsonSerializer.Serialize(payload, JsonOptions);
                 request.Content = new StringContent(json, Encoding.UTF8, "application/json");
 
@@ -114,54 +149,56 @@ namespace ZamZamApp.Services
                 if (response.StatusCode == HttpStatusCode.Unauthorized)
                 {
                     AuthService.Instance.HandleUnauthorized();
-                    return (false, "Session expired. Please sign in again.", 0);
+                    return (false, "Session expired. Please sign in again.", null);
                 }
 
                 string responseBody = await response.Content.ReadAsStringAsync();
 
                 if (string.IsNullOrWhiteSpace(responseBody))
                 {
-                    return (false, $"Server returned empty response (HTTP {(int)response.StatusCode}).", 0);
+                    return response.IsSuccessStatusCode
+                        ? (true, defaultSuccessMessage, null)
+                        : (false, $"Server returned empty response (HTTP {(int)response.StatusCode}).", null);
                 }
 
-                EmployeeTaskCreateResponse? createResponse = null;
+                EmployeeTaskUpdateResponse? apiResponse = null;
                 try
                 {
-                    createResponse = JsonSerializer.Deserialize<EmployeeTaskCreateResponse>(responseBody, JsonOptions);
+                    apiResponse = JsonSerializer.Deserialize<EmployeeTaskUpdateResponse>(responseBody, JsonOptions);
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine($"[EmployeeTaskService] Create JSON parse error: {ex.Message}");
+                    Debug.WriteLine($"[EmployeeTaskService] {method} JSON parse error: {ex.Message}");
                 }
 
-                if (createResponse == null)
+                if (apiResponse == null)
                 {
-                    return (false, $"Unexpected server response (HTTP {(int)response.StatusCode}).", 0);
+                    return (false, $"Unexpected server response (HTTP {(int)response.StatusCode}).", null);
                 }
 
-                if (createResponse.StatusCode == 401)
+                if (apiResponse.StatusCode == 401)
                 {
                     AuthService.Instance.HandleUnauthorized();
-                    return (false, "Session expired. Please sign in again.", 0);
+                    return (false, "Session expired. Please sign in again.", null);
                 }
 
-                if (!createResponse.Succeeded)
+                if (!apiResponse.Succeeded)
                 {
-                    string errorMessage = !string.IsNullOrWhiteSpace(createResponse.Message)
-                        ? createResponse.Message
-                        : $"Failed to create task (Status {createResponse.StatusCode}).";
-                    return (false, errorMessage, 0);
+                    string errorMessage = !string.IsNullOrWhiteSpace(apiResponse.Message)
+                        ? apiResponse.Message
+                        : $"{defaultErrorPrefix} (Status {apiResponse.StatusCode}).";
+                    return (false, errorMessage, null);
                 }
 
-                string successMessage = !string.IsNullOrWhiteSpace(createResponse.Message)
-                    ? createResponse.Message
-                    : "Employee task successfully created.";
-                return (true, successMessage, createResponse.Data);
+                string successMessage = !string.IsNullOrWhiteSpace(apiResponse.Message)
+                    ? apiResponse.Message
+                    : defaultSuccessMessage;
+                return (true, successMessage, apiResponse.Data);
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[EmployeeTaskService] Create error: {ex.Message}");
-                return (false, ex.Message, 0);
+                Debug.WriteLine($"[EmployeeTaskService] {method} error: {ex.Message}");
+                return (false, ex.Message, null);
             }
         }
 

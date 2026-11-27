@@ -170,10 +170,10 @@
                 </Grid>
 
                 <ScrollView Grid.Row="1" Orientation="Both">
-                    <VerticalStackLayout MinimumWidthRequest="784">
+                    <VerticalStackLayout MinimumWidthRequest="824">
                         <!-- Table Header Row -->
                         <Grid
-                            ColumnDefinitions="60,140,150,180,170,104"
+                            ColumnDefinitions="60,140,150,180,170,144"
                             Padding="14,12"
                             ColumnSpacing="10"
                             BackgroundColor="{AppThemeBinding Light=#EEF2FF, Dark=#1E1B4B}">
@@ -193,7 +193,7 @@
                                 <DataTemplate x:DataType="models:EmployeeTaskItem">
                                     <VerticalStackLayout>
                                         <Grid
-                                            ColumnDefinitions="60,140,150,180,170,104"
+                                            ColumnDefinitions="60,140,150,180,170,144"
                                             Padding="14,12"
                                             ColumnSpacing="10">
                                             <Label
@@ -248,6 +248,18 @@
                                                     Padding="0"
                                                     CommandParameter="{Binding .}"
                                                     Clicked="OnPreviewTaskClicked" />
+                                                <Button
+                                                    Text="✏️"
+                                                    FontSize="15"
+                                                    BackgroundColor="{AppThemeBinding Light=#FFFBEB, Dark=#422006}"
+                                                    BorderColor="{StaticResource WarningAmber}"
+                                                    BorderWidth="1"
+                                                    CornerRadius="8"
+                                                    WidthRequest="38"
+                                                    HeightRequest="34"
+                                                    Padding="0"
+                                                    CommandParameter="{Binding .}"
+                                                    Clicked="OnEditTaskClicked" />
                                                 <Button
                                                     Text="🗑️"
                                                     FontSize="15"
@@ -390,6 +402,7 @@
                         <Grid ColumnDefinitions="*,Auto" VerticalOptions="Center">
                             <Label
                                 Grid.Column="0"
+                                x:Name="TaskFormTitleLabel"
                                 Text="Create Employee Task"
                                 FontSize="17"
                                 FontAttributes="Bold"

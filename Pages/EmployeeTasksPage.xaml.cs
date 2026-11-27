@@ -9,6 +9,7 @@ namespace ZamZamApp.Pages
         private int _currentPage = 1;
         private bool _isLoading;
         private bool _isCreating;
+        private long? _editingTaskId;
         private bool _isInitializing = true;
 
         public EmployeeTasksPage()
@@ -214,10 +215,36 @@ namespace ZamZamApp.Pages
 
         private void OnCreateTaskClicked(object? sender, EventArgs e)
         {
+            _editingTaskId = null;
+            TaskFormTitleLabel.Text = "Create Employee Task";
+            CreateSubmitButton.Text = "Save Task";
             CreateTitleEntry.Text = string.Empty;
             CreateDescriptionEditor.Text = string.Empty;
             CreateScheduledDatePicker.Date = DateTime.Today;
             CreateScheduledTimePicker.Time = DateTime.Now.TimeOfDay;
+            CreateFormErrorLabel.Text = string.Empty;
+            CreateFormErrorLabel.IsVisible = false;
+            CreateTaskOverlay.IsVisible = true;
+            CreateTitleEntry.Focus();
+        }
+
+        private void OnEditTaskClicked(object? sender, EventArgs e)
+        {
+            if (_isLoading || sender is not Button button || button.CommandParameter is not EmployeeTaskItem task)
+                return;
+
+            _editingTaskId = task.Id;
+            TaskFormTitleLabel.Text = $"Update Task #{task.Id}";
+            CreateSubmitButton.Text = "Update Task";
+            CreateTitleEntry.Text = task.Title;
+            CreateDescriptionEditor.Text = task.Description;
+
+            DateTime localScheduled = task.ScheduledOn == default
+                ? DateTime.Now
+                : (task.ScheduledOn.Kind == DateTimeKind.Utc ? task.ScheduledOn.ToLocalTime() : task.ScheduledOn);
+
+            CreateScheduledDatePicker.Date = localScheduled.Date;
+            CreateScheduledTimePicker.Time = localScheduled.TimeOfDay;
             CreateFormErrorLabel.Text = string.Empty;
             CreateFormErrorLabel.IsVisible = false;
             CreateTaskOverlay.IsVisible = true;
@@ -250,22 +277,30 @@ namespace ZamZamApp.Pages
             DateTime scheduledDate = CreateScheduledDatePicker.Date ?? DateTime.Today;
             TimeSpan scheduledTime = CreateScheduledTimePicker.Time ?? TimeSpan.Zero;
             DateTime localScheduledOn = scheduledDate.Date.Add(scheduledTime);
+            bool isEdit = _editingTaskId.HasValue;
 
             var payload = new EmployeeTaskCreateRequest
             {
-                Id = 0,
+                Id = _editingTaskId ?? 0,
                 Title = title,
                 Description = CreateDescriptionEditor.Text?.Trim() ?? string.Empty,
                 ScheduledOn = DateTime.SpecifyKind(localScheduledOn, DateTimeKind.Local).ToUniversalTime()
             };
 
-            SetCreateLoading(true);
+            SetCreateLoading(true, isEdit);
             bool succeeded = false;
             string message = string.Empty;
 
             try
             {
-                (succeeded, message, _) = await EmployeeTaskService.Instance.CreateAsync(payload);
+                if (isEdit)
+                {
+                    (succeeded, message) = await EmployeeTaskService.Instance.UpdateAsync(payload);
+                }
+                else
+                {
+                    (succeeded, message, _) = await EmployeeTaskService.Instance.CreateAsync(payload);
+                }
             }
             catch (Exception ex)
             {
@@ -273,7 +308,7 @@ namespace ZamZamApp.Pages
             }
             finally
             {
-                SetCreateLoading(false);
+                SetCreateLoading(false, isEdit);
             }
 
             if (!succeeded)
@@ -285,7 +320,7 @@ namespace ZamZamApp.Pages
                 }
 
                 CreateFormErrorLabel.Text = string.IsNullOrWhiteSpace(message)
-                    ? "Failed to create employee task."
+                    ? (isEdit ? "Failed to update employee task." : "Failed to create employee task.")
                     : message;
                 CreateFormErrorLabel.IsVisible = true;
                 return;
@@ -293,14 +328,19 @@ namespace ZamZamApp.Pages
 
             CreateTaskOverlay.IsVisible = false;
             await DisplayAlertAsync(
-                "Created",
-                string.IsNullOrWhiteSpace(message) ? "Employee task successfully created." : message,
+                isEdit ? "Updated" : "Created",
+                string.IsNullOrWhiteSpace(message)
+                    ? (isEdit ? "Employee task successfully updated." : "Employee task successfully created.")
+                    : message,
                 "OK");
-            _currentPage = 1;
+
+            if (!isEdit)
+                _currentPage = 1;
+
             await LoadTasksAsync();
         }
 
-        private void SetCreateLoading(bool isLoading)
+        private void SetCreateLoading(bool isLoading, bool isEdit)
         {
             _isCreating = isLoading;
             CreateSubmitButton.IsEnabled = !isLoading;
@@ -309,7 +349,9 @@ namespace ZamZamApp.Pages
             CreateDescriptionEditor.IsEnabled = !isLoading;
             CreateScheduledDatePicker.IsEnabled = !isLoading;
             CreateScheduledTimePicker.IsEnabled = !isLoading;
-            CreateSubmitButton.Text = isLoading ? "Saving..." : "Save Task";
+            CreateSubmitButton.Text = isLoading
+                ? "Saving..."
+                : (isEdit ? "Update Task" : "Save Task");
         }
     }
 }

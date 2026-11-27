@@ -62,6 +62,21 @@ namespace ZamZamApp.Models
         public long Data { get; set; }
     }
 
+    public class EmployeeTaskUpdateResponse
+    {
+        [JsonPropertyName("message")]
+        public string Message { get; set; } = string.Empty;
+
+        [JsonPropertyName("succeeded")]
+        public bool Succeeded { get; set; }
+
+        [JsonPropertyName("statusCode")]
+        public int StatusCode { get; set; }
+
+        [JsonPropertyName("data")]
+        public System.Text.Json.JsonElement? Data { get; set; }
+    }
+
     public class EmployeeTaskPagedData
     {
         [JsonPropertyName("items")]
