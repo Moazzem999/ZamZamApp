@@ -17,6 +17,21 @@ namespace ZamZamApp.Models
         public EmployeeTaskPagedData? Data { get; set; }
     }
 
+    public class EmployeeTaskDeleteResponse
+    {
+        [JsonPropertyName("message")]
+        public string Message { get; set; } = string.Empty;
+
+        [JsonPropertyName("succeeded")]
+        public bool Succeeded { get; set; }
+
+        [JsonPropertyName("statusCode")]
+        public int StatusCode { get; set; }
+
+        [JsonPropertyName("data")]
+        public bool Data { get; set; }
+    }
+
     public class EmployeeTaskPagedData
     {
         [JsonPropertyName("items")]

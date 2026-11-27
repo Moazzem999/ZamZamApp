@@ -46,12 +46,7 @@ namespace ZamZamApp.Services
                 if (queryParams.Count > 0)
                     url = $"{url}?{string.Join("&", queryParams)}";
 
-                using var request = new HttpRequestMessage(HttpMethod.Get, url);
-                string token = AuthService.Instance.GetToken();
-                if (!string.IsNullOrWhiteSpace(token))
-                {
-                    request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
-                }
+                using var request = CreateAuthorizedRequest(HttpMethod.Get, url);
 
                 var response = await _httpClient.SendAsync(request);
                 string responseBody = await response.Content.ReadAsStringAsync();
@@ -91,6 +86,70 @@ namespace ZamZamApp.Services
                 Debug.WriteLine($"[EmployeeTaskService] Error: {ex.Message}");
                 return (false, ex.Message, null);
             }
+        }
+
+        public async Task<(bool Succeeded, string Message)> DeleteAsync(long id)
+        {
+            try
+            {
+                string url = AppSettings.EmployeeTaskDeleteEndpoint(id);
+                using var request = CreateAuthorizedRequest(HttpMethod.Delete, url);
+
+                var response = await _httpClient.SendAsync(request);
+                string responseBody = await response.Content.ReadAsStringAsync();
+
+                if (string.IsNullOrWhiteSpace(responseBody))
+                {
+                    return response.IsSuccessStatusCode
+                        ? (true, "Employee task successfully deleted.")
+                        : (false, $"Server returned empty response (HTTP {(int)response.StatusCode}).");
+                }
+
+                EmployeeTaskDeleteResponse? deleteResponse = null;
+                try
+                {
+                    deleteResponse = JsonSerializer.Deserialize<EmployeeTaskDeleteResponse>(responseBody, JsonOptions);
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"[EmployeeTaskService] Delete JSON parse error: {ex.Message}");
+                }
+
+                if (deleteResponse == null)
+                {
+                    return (false, $"Unexpected server response (HTTP {(int)response.StatusCode}).");
+                }
+
+                if (!deleteResponse.Succeeded || !deleteResponse.Data)
+                {
+                    string errorMessage = !string.IsNullOrWhiteSpace(deleteResponse.Message)
+                        ? deleteResponse.Message
+                        : $"Failed to delete task (Status {deleteResponse.StatusCode}).";
+                    return (false, errorMessage);
+                }
+
+                string successMessage = !string.IsNullOrWhiteSpace(deleteResponse.Message)
+                    ? deleteResponse.Message
+                    : "Employee task successfully deleted.";
+                return (true, successMessage);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[EmployeeTaskService] Delete error: {ex.Message}");
+                return (false, ex.Message);
+            }
+        }
+
+        private static HttpRequestMessage CreateAuthorizedRequest(HttpMethod method, string url)
+        {
+            var request = new HttpRequestMessage(method, url);
+            string token = AuthService.Instance.GetToken();
+            if (!string.IsNullOrWhiteSpace(token))
+            {
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            }
+
+            return request;
         }
     }
 }

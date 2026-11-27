@@ -154,10 +154,10 @@
                 </HorizontalStackLayout>
 
                 <ScrollView Grid.Row="1" Orientation="Both">
-                    <VerticalStackLayout MinimumWidthRequest="760">
+                    <VerticalStackLayout MinimumWidthRequest="784">
                         <!-- Table Header Row -->
                         <Grid
-                            ColumnDefinitions="60,140,150,180,170,80"
+                            ColumnDefinitions="60,140,150,180,170,104"
                             Padding="14,12"
                             ColumnSpacing="10"
                             BackgroundColor="{AppThemeBinding Light=#EEF2FF, Dark=#1E1B4B}">
@@ -177,7 +177,7 @@
                                 <DataTemplate x:DataType="models:EmployeeTaskItem">
                                     <VerticalStackLayout>
                                         <Grid
-                                            ColumnDefinitions="60,140,150,180,170,80"
+                                            ColumnDefinitions="60,140,150,180,170,104"
                                             Padding="14,12"
                                             ColumnSpacing="10">
                                             <Label
@@ -215,21 +215,36 @@
                                                 FontSize="11"
                                                 TextColor="{AppThemeBinding Light={StaticResource TextMutedLight}, Dark={StaticResource TextMutedDark}}"
                                                 VerticalOptions="Center" />
-                                            <Button
+                                            <HorizontalStackLayout
                                                 Grid.Column="5"
-                                                Text="👁️"
-                                                FontSize="15"
-                                                BackgroundColor="{AppThemeBinding Light=#EEF2FF, Dark=#1E1B4B}"
-                                                BorderColor="{StaticResource BrandPrimary}"
-                                                BorderWidth="1"
-                                                CornerRadius="8"
-                                                WidthRequest="38"
-                                                HeightRequest="34"
-                                                Padding="0"
+                                                Spacing="6"
                                                 HorizontalOptions="Center"
-                                                VerticalOptions="Center"
-                                                CommandParameter="{Binding .}"
-                                                Clicked="OnPreviewTaskClicked" />
+                                                VerticalOptions="Center">
+                                                <Button
+                                                    Text="👁️"
+                                                    FontSize="15"
+                                                    BackgroundColor="{AppThemeBinding Light=#EEF2FF, Dark=#1E1B4B}"
+                                                    BorderColor="{StaticResource BrandPrimary}"
+                                                    BorderWidth="1"
+                                                    CornerRadius="8"
+                                                    WidthRequest="38"
+                                                    HeightRequest="34"
+                                                    Padding="0"
+                                                    CommandParameter="{Binding .}"
+                                                    Clicked="OnPreviewTaskClicked" />
+                                                <Button
+                                                    Text="🗑️"
+                                                    FontSize="15"
+                                                    BackgroundColor="{AppThemeBinding Light=#FFF1F2, Dark=#3F1D2B}"
+                                                    BorderColor="{StaticResource ErrorRose}"
+                                                    BorderWidth="1"
+                                                    CornerRadius="8"
+                                                    WidthRequest="38"
+                                                    HeightRequest="34"
+                                                    Padding="0"
+                                                    CommandParameter="{Binding .}"
+                                                    Clicked="OnDeleteTaskClicked" />
+                                            </HorizontalStackLayout>
                                         </Grid>
                                         <BoxView HeightRequest="1" Color="{AppThemeBinding Light={StaticResource BorderSubtleLight}, Dark={StaticResource BorderSubtleDark}}" />
                                     </VerticalStackLayout>

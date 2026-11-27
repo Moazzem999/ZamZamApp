@@ -158,5 +158,54 @@ namespace ZamZamApp.Pages
 
             await DisplayAlertAsync("Task Preview", details, "Close");
         }
+
+        private async void OnDeleteTaskClicked(object? sender, EventArgs e)
+        {
+            if (_isLoading || sender is not Button button || button.CommandParameter is not EmployeeTaskItem task)
+                return;
+
+            bool confirmed = await DisplayAlertAsync(
+                "Delete Task",
+                $"Are you sure you want to delete \"{task.Title}\" (#{task.Id})?",
+                "Delete",
+                "Cancel");
+
+            if (!confirmed)
+                return;
+
+            _isLoading = true;
+            LoadingOverlay.IsVisible = true;
+            bool succeeded = false;
+            string message = string.Empty;
+
+            try
+            {
+                (succeeded, message) = await EmployeeTaskService.Instance.DeleteAsync(task.Id);
+            }
+            catch (Exception ex)
+            {
+                message = ex.Message;
+            }
+            finally
+            {
+                LoadingOverlay.IsVisible = false;
+                _isLoading = false;
+            }
+
+            if (!succeeded)
+            {
+                await DisplayAlertAsync(
+                    "Delete Failed",
+                    string.IsNullOrWhiteSpace(message) ? "Failed to delete employee task." : message,
+                    "OK");
+                return;
+            }
+
+            await DisplayAlertAsync(
+                "Deleted",
+                string.IsNullOrWhiteSpace(message) ? "Employee task successfully deleted." : message,
+                "OK");
+            await LoadTasksAsync();
+        }
     }
 }
