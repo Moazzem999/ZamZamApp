@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Net;
 using System.Net.Http.Headers;
 using System.Text.Json;
 using ZamZamApp.Models;
@@ -49,6 +50,12 @@ namespace ZamZamApp.Services
                 using var request = CreateAuthorizedRequest(HttpMethod.Get, url);
 
                 var response = await _httpClient.SendAsync(request);
+                if (response.StatusCode == HttpStatusCode.Unauthorized)
+                {
+                    AuthService.Instance.HandleUnauthorized();
+                    return (false, "Session expired. Please sign in again.", null);
+                }
+
                 string responseBody = await response.Content.ReadAsStringAsync();
 
                 if (string.IsNullOrWhiteSpace(responseBody))
@@ -69,6 +76,12 @@ namespace ZamZamApp.Services
                 if (taskResponse == null)
                 {
                     return (false, $"Unexpected server response (HTTP {(int)response.StatusCode}).", null);
+                }
+
+                if (taskResponse.StatusCode == 401)
+                {
+                    AuthService.Instance.HandleUnauthorized();
+                    return (false, "Session expired. Please sign in again.", null);
                 }
 
                 if (!taskResponse.Succeeded)
@@ -96,6 +109,12 @@ namespace ZamZamApp.Services
                 using var request = CreateAuthorizedRequest(HttpMethod.Delete, url);
 
                 var response = await _httpClient.SendAsync(request);
+                if (response.StatusCode == HttpStatusCode.Unauthorized)
+                {
+                    AuthService.Instance.HandleUnauthorized();
+                    return (false, "Session expired. Please sign in again.");
+                }
+
                 string responseBody = await response.Content.ReadAsStringAsync();
 
                 if (string.IsNullOrWhiteSpace(responseBody))
@@ -118,6 +137,12 @@ namespace ZamZamApp.Services
                 if (deleteResponse == null)
                 {
                     return (false, $"Unexpected server response (HTTP {(int)response.StatusCode}).");
+                }
+
+                if (deleteResponse.StatusCode == 401)
+                {
+                    AuthService.Instance.HandleUnauthorized();
+                    return (false, "Session expired. Please sign in again.");
                 }
 
                 if (!deleteResponse.Succeeded || !deleteResponse.Data)

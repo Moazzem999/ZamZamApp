@@ -240,6 +240,11 @@ namespace ZamZamApp.Services
                 int statusCode = (int)response.StatusCode;
                 Log($"API response (Status: {statusCode}):\n{responseBody}", isSuccess: response.IsSuccessStatusCode);
 
+                if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                {
+                    AuthService.Instance.HandleUnauthorized();
+                }
+
                 bool isSucceeded = false;
                 bool foundSucceeded = false;
 

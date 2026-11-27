@@ -16,12 +16,14 @@ namespace ZamZamApp.Services
         };
 
         private readonly HttpClient _httpClient;
+        private readonly object _logoutLock = new();
 
         private const string PrefToken = "ZamZam_AuthToken";
         private const string PrefExpiresAt = "ZamZam_AuthExpiresAt";
         private const string PrefUserJson = "ZamZam_AuthUser";
 
         public event Action? AuthStateChanged;
+        public event Action? SessionExpired;
 
         private AuthService()
         {
@@ -110,10 +112,34 @@ namespace ZamZamApp.Services
 
         public void Logout()
         {
+            lock (_logoutLock)
+            {
+                ClearSessionPreferences();
+            }
+
+            NotifyAuthStateChanged();
+        }
+
+        public bool HandleUnauthorized()
+        {
+            lock (_logoutLock)
+            {
+                if (!IsLoggedIn)
+                    return false;
+
+                ClearSessionPreferences();
+            }
+
+            NotifyAuthStateChanged();
+            NotifySessionExpired();
+            return true;
+        }
+
+        private static void ClearSessionPreferences()
+        {
             Preferences.Default.Remove(PrefToken);
             Preferences.Default.Remove(PrefExpiresAt);
             Preferences.Default.Remove(PrefUserJson);
-            NotifyAuthStateChanged();
         }
 
         private void SaveSession(LoginData data)
@@ -140,6 +166,17 @@ namespace ZamZamApp.Services
             try
             {
                 MainThread.BeginInvokeOnMainThread(() => AuthStateChanged?.Invoke());
+            }
+            catch
+            {
+            }
+        }
+
+        private void NotifySessionExpired()
+        {
+            try
+            {
+                MainThread.BeginInvokeOnMainThread(() => SessionExpired?.Invoke());
             }
             catch
             {

@@ -194,6 +194,9 @@ namespace ZamZamApp.Pages
 
             if (!succeeded)
             {
+                if (!AuthService.Instance.IsLoggedIn)
+                    return;
+
                 await DisplayAlertAsync(
                     "Delete Failed",
                     string.IsNullOrWhiteSpace(message) ? "Failed to delete employee task." : message,
